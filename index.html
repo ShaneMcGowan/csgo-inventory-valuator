@@ -2,8 +2,134 @@
 <html>
 <head>
     <title>CSGO Inventory Valuator</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
     <h1>Wello Horld!</h1>
+    <p id="area">loading</p>
+    <p id="total"></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Class ID</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
+
+<script>
+
+let inventory = [];
+
+window.onload = function(){
+
+    // url with CORS fix
+    //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
+    let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
+    var xhttp = new XMLHttpRequest();
+
+    // async returned ok
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            document.getElementById('area').innerHTML = 'response back!';
+            parseJSON(this.responseText);
+            
+        }
+    };
+
+    xhttp.open("GET", url, true);
+    xhttp.send();
+    
+    // prompt user that request is sent
+    document.getElementById('area').innerHTML = 'sent, waiting on response...';
+};
+
+function parseJSON(response){
+    let tempData = JSON.parse(response);
+
+    // total items in inventory
+    let total = document.getElementById('total').innerHTML = 'Total items : ' + tempData.total_inventory_count;
+
+
+    // Count number of each item
+    let tempInventory = [];
+    tempData.assets.forEach(element => {
+        let contains = { found : false, index : 0 };
+        for(let i = 0; i < tempInventory.length; i++){
+            if(tempInventory[i].classid == element.classid){
+                contains.found = true;
+                contains.index = i;
+                break;
+            }
+        }
+        if(contains.found){
+            tempInventory[contains.index].amount += 1;
+        }
+        else{
+            tempInventory.push({ 
+                classid : element.classid,
+                amount : 1,
+            });
+        }
+    });
+
+    tempInventory.forEach(item => {
+        for(let i = 0; i < tempData.descriptions.length; i++){
+            if(item.classid == tempData.descriptions[i].classid){
+                item.name = tempData.descriptions[i].name; // + ' - ' + tempData.descriptions[i].descriptions[0].value + tempData.descriptions[i].descriptions[2].value  ;
+                console.log(tempData.descriptions[i].name);
+                break;
+            }
+        }
+    });
+
+    // fill table
+    let tableBody = document.getElementById('tableBody');
+    tempInventory.forEach(element => {
+        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.classid + '</td><td>' + element.amount + '</td></tr>';
+    });
+    // fill inventory
+    /*tempData.descriptions.forEach(element => {
+        
+        let contains = { found : false, index : 0 };
+        for(let i = 0; i < inventory.length; i++){
+            if(inventory[i].name == element.name){
+                contains.found = true;
+                contains.index = i;
+                break;
+            }
+        }
+        if(contains.found){
+            inventory[contains.index].amount += 1;
+        }
+        else{
+            inventory.push({ 
+                name : element.name,
+                type : element.type,
+                amount : 1
+            });
+        }
+    });
+    populateTable(inventory);*/
+}
+
+function populateTable(inventory){
+    let tableBody = document.getElementById('tableBody');
+    inventory.forEach(element => {
+        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td></tr>';
+    });
+}
+
+
+
+
+</script>
