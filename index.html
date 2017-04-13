@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>CSGO Inventory Valuator</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
     <h1>Wello Horld!</h1>
@@ -85,48 +84,48 @@ function parseJSON(response){
     tempInventory.forEach(item => {
         for(let i = 0; i < tempData.descriptions.length; i++){
             if(item.classid == tempData.descriptions[i].classid){
-                item.name = tempData.descriptions[i].name; // + ' - ' + tempData.descriptions[i].descriptions[0].value + tempData.descriptions[i].descriptions[2].value  ;
-                console.log(tempData.descriptions[i].name);
+                item.name = tempData.descriptions[i].market_hash_name; 
                 break;
             }
         }
     });
 
+    /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
+        the same name but have different classids. This sorts through the items that have the same name but different class ids */
+    tempInventory = removeDuplicateNameEntries(tempInventory);
+    /* now remove all the null rows so we have no issues when making the table */
+    tempInventory = removeNullsFromArray(tempInventory);
+
     // fill table
-    let tableBody = document.getElementById('tableBody');
-    tempInventory.forEach(element => {
-        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.classid + '</td><td>' + element.amount + '</td></tr>';
-    });
-    // fill inventory
-    /*tempData.descriptions.forEach(element => {
-        
-        let contains = { found : false, index : 0 };
-        for(let i = 0; i < inventory.length; i++){
-            if(inventory[i].name == element.name){
-                contains.found = true;
-                contains.index = i;
-                break;
-            }
-        }
-        if(contains.found){
-            inventory[contains.index].amount += 1;
-        }
-        else{
-            inventory.push({ 
-                name : element.name,
-                type : element.type,
-                amount : 1
-            });
-        }
-    });
-    populateTable(inventory);*/
+    populateTable(tempInventory);
+
 }
 
 function populateTable(inventory){
     let tableBody = document.getElementById('tableBody');
     inventory.forEach(element => {
-        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td></tr>';
+        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.classid + '</td><td>' + element.amount + '</td></tr>';
     });
+}
+function removeDuplicateNameEntries(array){
+    for(let i = 0; i < array.length; i++){
+        for(let j = 0; j < array.length; j++){
+            if(array[i] != null && array[j] != null && array[i].name == array[j].name && i != j){
+                array[i].amount += array[j].amount;
+                array[j] = null;
+            }
+        }
+    }
+    return array;
+}
+function removeNullsFromArray(array){
+    for(let i = 0; i < array.length; i++){
+        if(array[i] == null){
+            array.splice(i,1)
+            i--;
+        }
+    }
+    return array;
 }
 
 
