@@ -4,7 +4,9 @@
     <title>CSGO Inventory Valuator</title>
 </head>
 <body>
-    <h1>Wello Horld!</h1>
+    <h1>CSGO Inventory Valuator <span style="font-size : 10px;">by Szenmu</span></h1>
+    <input type="text" id="tbxSteamID" placeholder="Steam64ID" value="76561198060787905"/>
+    <button id="btnGo">Go!</button>
     <p id="area">loading</p>
     <p id="total"></p>
     <table>
@@ -16,10 +18,6 @@
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
         </tbody>
     </table>
 </body>
@@ -30,10 +28,19 @@
 let inventory = [];
 
 window.onload = function(){
-
     // url with CORS fix
     //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
     let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
+
+    let buttonCalculate = document.getElementById('btnGo');
+    let steam64ID = document.getElementById('tbxSteamID');
+
+    buttonCalculate.addEventListener('click',function(){
+        url = 'https://crossorigin.me/http://steamcommunity.com/inventory/' + steam64ID.value + '/730/2?l=english&count=5000';
+        alert(url);
+    });
+    
+    
     var xhttp = new XMLHttpRequest();
 
     // async returned ok
