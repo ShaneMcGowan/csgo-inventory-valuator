@@ -18,7 +18,7 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Class ID</th>
+                <th>Type</th>
                 <th>Amount</th>
             </tr>
         </thead>
@@ -45,8 +45,26 @@ window.onload = function(){
     let steam64ID = document.getElementById('tbxSteamID');
 
     buttonCalculate.addEventListener('click',function(){
+        reset();
+
+        // prompt user request sent
+        document.getElementById('area').innerHTML = 'sent, waiting on response...';
+
+        // get inventory input
         url = 'https://crossorigin.me/http://steamcommunity.com/inventory/' + steam64ID.value + '/730/2?l=english&count=5000';
-        alert(url);
+        var xhttp = new XMLHttpRequest();
+
+        // async returned ok
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById('area').innerHTML = 'response back!';
+                parseJSON(this.responseText);
+                
+            }
+        };
+        xhttp.open("GET", url, true);
+        xhttp.send();
+
     });
     
     
@@ -154,7 +172,6 @@ function removeNullsFromArray(array){
 
 // Get different types from items for sorting
 function getTypes(array){
-
     array.forEach(item => {
         let contains = { found : false, index : 0 };
         for(let i = 0; i < types.length; i++){
@@ -173,8 +190,6 @@ function getTypes(array){
                 amount : item.amount,
             });
         }
-
-
     });
 }
 // print types onto screen
@@ -211,6 +226,15 @@ function sortTypesAmount(order){
     else{
         alert('Yo, enter a correct value for sorting types friend');
     }  
+}
+
+// reset screen
+function reset(){
+    unfilteredInventory = [];
+    types = [];
+    document.getElementById('total').innerHTML = '';
+    document.getElementById('types').innerHTML = '';
+    document.getElementById('tableBody').innerHTML = '';
 }
 
 
