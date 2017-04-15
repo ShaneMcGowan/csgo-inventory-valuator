@@ -1,11 +1,20 @@
 <!doctype html>
 <html>
+
 <head>
     <title>CSGO Inventory Valuator</title>
 </head>
+
 <body>
     <h1>CSGO Inventory Valuator <span style="font-size : 10px;">by Szenmu</span></h1>
-    <input type="text" id="tbxSteamID" placeholder="Steam64ID" value="76561198060787905"/>
+    <h4>OpSkins Prices : <span id="timeOpSkins">No Prices</span></h4>
+    <button>Update Steam</button><button id="btnOpSkins">Update OpSkins</button><button>Update BitSkins</button>
+    </br>
+    </br>
+    <a href="https://opskins.com/kb/api-ipricing" target="_blank">OpSkins API</a>
+    </br>
+    </br>
+    <input type="text" id="tbxSteamID" placeholder="Steam64ID" value="76561198060787905" />
     <button id="btnGo">Go!</button>
     <p id="area">loading</p>
     <p id="total"></p>
@@ -20,224 +29,268 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Amount</th>
+                <th>OpSkins</th>
             </tr>
         </thead>
         <tbody id="tableBody">
         </tbody>
     </table>
 </body>
+
 </html>
 
 <script>
+    /************
+    *    APIs   *
+    *************/
+    let APIOpSkins = 'https://api.opskins.com/IPricing/GetAllLowestListPrices/v1/?appid=730';
 
-let unfilteredInventory = [];
-let filteredInventory = [];
 
-let types = [];
+    /***********
+     *  Prices *
+     ***********/
+    let pricesOpSkins = null;
+
+    let unfilteredInventory = [];
+    let filteredInventory = [];
+
+    let types = [];
 
 
-window.onload = function(){
-    // url with CORS fix
-    //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
-    let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
+    window.onload = function () {
+        // url with CORS fix
+        //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
+        let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
 
-    let buttonCalculate = document.getElementById('btnGo');
-    let steam64ID = document.getElementById('tbxSteamID');
 
-    buttonCalculate.addEventListener('click',function(){
-        reset();
 
-        // prompt user request sent
-        document.getElementById('area').innerHTML = 'sent, waiting on response...';
+        let buttonCalculate = document.getElementById('btnGo');
+        let steam64ID = document.getElementById('tbxSteamID');
 
-        // get inventory input
-        url = 'https://crossorigin.me/http://steamcommunity.com/inventory/' + steam64ID.value + '/730/2?l=english&count=5000';
+        document.getElementById('btnOpSkins').addEventListener('click', updatePricesOpSkins, false);
+
+        buttonCalculate.addEventListener('click', function () {
+            reset();
+
+            // prompt user request sent
+            document.getElementById('area').innerHTML = 'sent, waiting on response...';
+
+            // get inventory input
+            url = 'https://crossorigin.me/http://steamcommunity.com/inventory/' + steam64ID.value + '/730/2?l=english&count=5000';
+            var xhttp = new XMLHttpRequest();
+
+            // async returned ok
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById('area').innerHTML = 'response back!';
+                    parseJSON(this.responseText);
+
+                }
+            };
+            xhttp.open("GET", url, true);
+            xhttp.send();
+
+        });
+
+
         var xhttp = new XMLHttpRequest();
 
         // async returned ok
-        xhttp.onreadystatechange = function() {
+        xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById('area').innerHTML = 'response back!';
                 parseJSON(this.responseText);
-                
+
             }
         };
+
         xhttp.open("GET", url, true);
         xhttp.send();
 
-    });
-    
-    
-    var xhttp = new XMLHttpRequest();
-
-    // async returned ok
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById('area').innerHTML = 'response back!';
-            parseJSON(this.responseText);
-            
-        }
+        // prompt user that request is sent
+        document.getElementById('area').innerHTML = 'sent, waiting on response...';
     };
 
-    xhttp.open("GET", url, true);
-    xhttp.send();
-    
-    // prompt user that request is sent
-    document.getElementById('area').innerHTML = 'sent, waiting on response...';
-};
+    function parseJSON(response) {
+        let tempData = JSON.parse(response);
 
-function parseJSON(response){
-    let tempData = JSON.parse(response);
-
-    // total items in inventory
-    let total = document.getElementById('total').innerHTML = 'Total items : ' + tempData.total_inventory_count;
+        // total items in inventory
+        let total = document.getElementById('total').innerHTML = 'Total items : ' + tempData.total_inventory_count;
 
 
-    // Count number of each item
-    let tempInventory = [];
-    tempData.assets.forEach(element => {
-        let contains = { found : false, index : 0 };
-        for(let i = 0; i < tempInventory.length; i++){
-            if(tempInventory[i].classid == element.classid){
-                contains.found = true;
-                contains.index = i;
-                break;
+        // Count number of each item
+        let tempInventory = [];
+        tempData.assets.forEach(element => {
+            let contains = { found: false, index: 0 };
+            for (let i = 0; i < tempInventory.length; i++) {
+                if (tempInventory[i].classid == element.classid) {
+                    contains.found = true;
+                    contains.index = i;
+                    break;
+                }
+            }
+            if (contains.found) {
+                tempInventory[contains.index].amount += 1;
+            }
+            else {
+                tempInventory.push({
+                    classid: element.classid,
+                    amount: 1,
+                });
+            }
+        });
+
+        tempInventory.forEach(item => {
+            for (let i = 0; i < tempData.descriptions.length; i++) {
+                if (item.classid == tempData.descriptions[i].classid) {
+                    item.name = tempData.descriptions[i].market_hash_name;
+                    item.type = tempData.descriptions[i].type;
+                    item.tag_type = tempData.descriptions[i].tags[0].localized_tag_name;
+                    break;
+                }
+            }
+        });
+
+        /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
+            the same name but have different classids. This sorts through the items that have the same name but different class ids */
+        tempInventory = removeDuplicateNameEntries(tempInventory);
+        /* now remove all the null rows so we have no issues when making the table */
+        tempInventory = removeNullsFromArray(tempInventory);
+
+        unfilteredInventory = tempInventory;
+
+        getTypes(unfilteredInventory);
+        sortTypesAmount('descending');
+        printTypes();
+        // fill table
+        populateTable(unfilteredInventory);
+
+    }
+
+    function populateTable(inventory) {
+        let tableBody = document.getElementById('tableBody');
+        inventory.forEach(element => {
+            tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td><td>' + '$' + element.price + '</td></tr>';
+        });
+    }
+    function removeDuplicateNameEntries(array) {
+        for (let i = 0; i < array.length; i++) {
+            for (let j = 0; j < array.length; j++) {
+                if (array[i] != null && array[j] != null && array[i].name == array[j].name && i != j) {
+                    array[i].amount += array[j].amount;
+                    array[j] = null;
+                }
             }
         }
-        if(contains.found){
-            tempInventory[contains.index].amount += 1;
-        }
-        else{
-            tempInventory.push({ 
-                classid : element.classid,
-                amount : 1,
-            });
-        }
-    });
-
-    tempInventory.forEach(item => {
-        for(let i = 0; i < tempData.descriptions.length; i++){
-            if(item.classid == tempData.descriptions[i].classid){
-                item.name = tempData.descriptions[i].market_hash_name;
-                item.type = tempData.descriptions[i].type;
-                item.tag_type = tempData.descriptions[i].tags[0].localized_tag_name;
-                break;
+        return array;
+    }
+    function removeNullsFromArray(array) {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i] == null) {
+                array.splice(i, 1)
+                i--;
             }
         }
-    });
+        return array;
+    }
 
-    /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
-        the same name but have different classids. This sorts through the items that have the same name but different class ids */
-    tempInventory = removeDuplicateNameEntries(tempInventory);
-    /* now remove all the null rows so we have no issues when making the table */
-    tempInventory = removeNullsFromArray(tempInventory);
 
-    unfilteredInventory = tempInventory;
-
-    getTypes(unfilteredInventory);
-    sortTypesAmount('descending');
-    printTypes();
-    // fill table
-    populateTable(unfilteredInventory);
-
-}
-
-function populateTable(inventory){
-    let tableBody = document.getElementById('tableBody');
-    inventory.forEach(element => {
-        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td></tr>';
-    });
-}
-function removeDuplicateNameEntries(array){
-    for(let i = 0; i < array.length; i++){
-        for(let j = 0; j < array.length; j++){
-            if(array[i] != null && array[j] != null && array[i].name == array[j].name && i != j){
-                array[i].amount += array[j].amount;
-                array[j] = null;
+    // Get different types from items for sorting
+    function getTypes(array) {
+        array.forEach(item => {
+            let contains = { found: false, index: 0 };
+            for (let i = 0; i < types.length; i++) {
+                if (types[i].type == item.type) {
+                    contains.found = true;
+                    contains.index = i;
+                    break;
+                }
             }
-        }
-    }
-    return array;
-}
-function removeNullsFromArray(array){
-    for(let i = 0; i < array.length; i++){
-        if(array[i] == null){
-            array.splice(i,1)
-            i--;
-        }
-    }
-    return array;
-}
-
-
-// Get different types from items for sorting
-function getTypes(array){
-    array.forEach(item => {
-        let contains = { found : false, index : 0 };
-        for(let i = 0; i < types.length; i++){
-            if(types[i].type == item.type){
-                contains.found = true;
-                contains.index = i;
-                break;
+            if (contains.found) {
+                types[contains.index].amount += item.amount;
             }
-        }
-        if(contains.found){
-            types[contains.index].amount += item.amount;
-        }
-        else{
-            types.push({ 
-                type : item.type,
-                amount : item.amount,
-            });
-        }
-    });
-}
-// print types onto screen
-function printTypes(){
-    let typeArea = document.getElementById('types');
-    types.forEach(type => {
-        typeArea.innerHTML += '<li >' + type.type + ' : ' + type.amount + '</li>';
-    })
-}
-
-// sort types by amount 
-function sortTypesAmount(order){
-    let compare;
-    if(order == 'ascending'){
-        compare = function (a,b) {
-            if (a.amount < b.amount)
-                return -1;
-            if (a.amount > b.amount)
-                return 1;
-            return 0;
-        }
-        types.sort(compare);
+            else {
+                types.push({
+                    type: item.type,
+                    amount: item.amount,
+                });
+            }
+        });
     }
-    else if(order == 'descending'){
-        compare = function (a,b) {
-            if (a.amount < b.amount)
-                return 1;
-            if (a.amount > b.amount)
-                return -1;
-            return 0;
-        }
-        types.sort(compare);
+    // print types onto screen
+    function printTypes() {
+        let typeArea = document.getElementById('types');
+        types.forEach(type => {
+            typeArea.innerHTML += '<li >' + type.type + ' : ' + type.amount + '</li>';
+        })
     }
-    else{
-        alert('Yo, enter a correct value for sorting types friend');
-    }  
-}
 
-// reset screen
-function reset(){
-    unfilteredInventory = [];
-    types = [];
-    document.getElementById('total').innerHTML = '';
-    document.getElementById('types').innerHTML = '';
-    document.getElementById('tableBody').innerHTML = '';
-}
+    // sort types by amount 
+    function sortTypesAmount(order) {
+        let compare;
+        if (order == 'ascending') {
+            compare = function (a, b) {
+                if (a.amount < b.amount)
+                    return -1;
+                if (a.amount > b.amount)
+                    return 1;
+                return 0;
+            }
+            types.sort(compare);
+        }
+        else if (order == 'descending') {
+            compare = function (a, b) {
+                if (a.amount < b.amount)
+                    return 1;
+                if (a.amount > b.amount)
+                    return -1;
+                return 0;
+            }
+            types.sort(compare);
+        }
+        else {
+            alert('Yo, enter a correct value for sorting types friend');
+        }
+    }
 
+    // reset screen
+    function reset() {
+        unfilteredInventory = [];
+        types = [];
+        document.getElementById('total').innerHTML = '';
+        document.getElementById('types').innerHTML = '';
+        document.getElementById('tableBody').innerHTML = '';
+    }
 
+    function updatePricesOpSkins() {
+        document.getElementById('timeOpSkins').innerHTML = Date().toString();
+        var xhttp = new XMLHttpRequest();
 
+        // async returned ok
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                let res = JSON.parse(this.responseText)
+                if (res.status == 1) {
+                    pricesOpSkins = res.response;
+                    unfilteredInventory.forEach(item =>{
+                        // REMOVE THIS ONCE STOCK WEAPONS ARE REMOVED FROM INVENTORY
+                        try{
+                            item.price = (pricesOpSkins[item.name].price / 100);
+                        }
+                        catch(e){
+                            // shout out to cathal
+                        }
+                        document.getElementById('tableBody').innerHTML = '';
+                        populateTable(unfilteredInventory);
+                    });
+                }
+                else {
+                    alert('Error getting OpSkins Prices')
+                }
+            }
+        };
+        xhttp.open("GET", APIOpSkins, true);
+        xhttp.send();
+    }
 
 </script>
