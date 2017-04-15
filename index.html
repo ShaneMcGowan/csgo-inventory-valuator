@@ -9,6 +9,11 @@
     <button id="btnGo">Go!</button>
     <p id="area">loading</p>
     <p id="total"></p>
+
+    <ul id="types">
+
+    </ul>
+
     <table>
         <thead>
             <tr>
@@ -25,7 +30,11 @@
 
 <script>
 
-let inventory = [];
+let unfilteredInventory = [];
+let filteredInventory = [];
+
+let types = [];
+
 
 window.onload = function(){
     // url with CORS fix
@@ -91,7 +100,9 @@ function parseJSON(response){
     tempInventory.forEach(item => {
         for(let i = 0; i < tempData.descriptions.length; i++){
             if(item.classid == tempData.descriptions[i].classid){
-                item.name = tempData.descriptions[i].market_hash_name; 
+                item.name = tempData.descriptions[i].market_hash_name;
+                item.type = tempData.descriptions[i].type;
+                item.tag_type = tempData.descriptions[i].tags[0].localized_tag_name;
                 break;
             }
         }
@@ -103,15 +114,20 @@ function parseJSON(response){
     /* now remove all the null rows so we have no issues when making the table */
     tempInventory = removeNullsFromArray(tempInventory);
 
+    unfilteredInventory = tempInventory;
+
+    getTypes(unfilteredInventory);
+    sortTypesAmount('descending');
+    printTypes();
     // fill table
-    populateTable(tempInventory);
+    populateTable(unfilteredInventory);
 
 }
 
 function populateTable(inventory){
     let tableBody = document.getElementById('tableBody');
     inventory.forEach(element => {
-        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.classid + '</td><td>' + element.amount + '</td></tr>';
+        tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td></tr>';
     });
 }
 function removeDuplicateNameEntries(array){
@@ -133,6 +149,68 @@ function removeNullsFromArray(array){
         }
     }
     return array;
+}
+
+
+// Get different types from items for sorting
+function getTypes(array){
+
+    array.forEach(item => {
+        let contains = { found : false, index : 0 };
+        for(let i = 0; i < types.length; i++){
+            if(types[i].type == item.type){
+                contains.found = true;
+                contains.index = i;
+                break;
+            }
+        }
+        if(contains.found){
+            types[contains.index].amount += item.amount;
+        }
+        else{
+            types.push({ 
+                type : item.type,
+                amount : item.amount,
+            });
+        }
+
+
+    });
+}
+// print types onto screen
+function printTypes(){
+    let typeArea = document.getElementById('types');
+    types.forEach(type => {
+        typeArea.innerHTML += '<li >' + type.type + ' : ' + type.amount + '</li>';
+    })
+}
+
+// sort types by amount 
+function sortTypesAmount(order){
+    let compare;
+    if(order == 'ascending'){
+        compare = function (a,b) {
+            if (a.amount < b.amount)
+                return -1;
+            if (a.amount > b.amount)
+                return 1;
+            return 0;
+        }
+        types.sort(compare);
+    }
+    else if(order == 'descending'){
+        compare = function (a,b) {
+            if (a.amount < b.amount)
+                return 1;
+            if (a.amount > b.amount)
+                return -1;
+            return 0;
+        }
+        types.sort(compare);
+    }
+    else{
+        alert('Yo, enter a correct value for sorting types friend');
+    }  
 }
 
 
