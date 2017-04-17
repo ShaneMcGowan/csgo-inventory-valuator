@@ -16,6 +16,8 @@
     </br>
     <input type="text" id="tbxSteamID" placeholder="Steam64ID" value="76561198060787905" />
     <button id="btnGo">Go!</button>
+    </br>
+    <button id="btnFilter">Filter Test</button>
     <p id="area">loading</p>
     <p id="total"></p>
 
@@ -51,8 +53,8 @@
      ***********/
     let pricesOpSkins = null;
 
-    let unfilteredInventory = [];
-    let filteredInventory = [];
+    let inventoryUnfiltered = [];
+    let inventoryFiltered = [];
 
     let types = [];
 
@@ -62,12 +64,19 @@
         //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
         let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
 
-
+        // get prices
+        getPricesOpSkins();
 
         let buttonCalculate = document.getElementById('btnGo');
         let steam64ID = document.getElementById('tbxSteamID');
 
-        document.getElementById('btnOpSkins').addEventListener('click', updatePricesOpSkins, false);
+        document.getElementById('btnFilter').addEventListener('click',
+            function(){
+                filterInventory('High Grade Sticker');
+                populateTable(inventoryFiltered);
+            },false);
+
+        document.getElementById('btnOpSkins').addEventListener('click',function(){ updatePricesOpSkins();populateTable(inventoryUnfiltered)}, false);
 
         buttonCalculate.addEventListener('click', function () {
             reset();
@@ -157,18 +166,19 @@
         /* now remove all the null rows so we have no issues when making the table */
         tempInventory = removeNullsFromArray(tempInventory);
 
-        unfilteredInventory = tempInventory;
+        inventoryUnfiltered = tempInventory;
 
-        getTypes(unfilteredInventory);
+        getTypes(inventoryUnfiltered);
         sortTypesAmount('descending');
         printTypes();
         // fill table
-        populateTable(unfilteredInventory);
+        populateTable(inventoryUnfiltered);
 
     }
 
     function populateTable(inventory) {
         let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
         inventory.forEach(element => {
             tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td><td>' + '$' + element.price + '</td></tr>';
         });
@@ -217,12 +227,22 @@
             }
         });
     }
-    // print types onto screen
+    // print types onto screen, setting up click events for sorting
     function printTypes() {
         let typeArea = document.getElementById('types');
-        types.forEach(type => {
-            typeArea.innerHTML += '<li >' + type.type + ' : ' + type.amount + '</li>';
-        })
+
+        for(let i = 0; i < types.length; i++){
+            let tempID = 'type' + i;
+            typeArea.innerHTML += '<li id="' + tempID + '">' + types[i].type + ' - ' + types[i].amount + '</li>';
+        }
+
+        for(let i = 0; i < types.length; i++){
+            let tempID = 'type' + i;
+            document.getElementById(tempID).addEventListener('click',function(){
+                    filterInventory(types[i].type);
+                    populateTable(inventoryFiltered);
+                },false);
+        }
     }
 
     // sort types by amount 
@@ -255,14 +275,14 @@
 
     // reset screen
     function reset() {
-        unfilteredInventory = [];
+        inventoryUnfiltered = [];
         types = [];
         document.getElementById('total').innerHTML = '';
         document.getElementById('types').innerHTML = '';
         document.getElementById('tableBody').innerHTML = '';
     }
 
-    function updatePricesOpSkins() {
+    function getPricesOpSkins(){
         document.getElementById('timeOpSkins').innerHTML = Date().toString();
         var xhttp = new XMLHttpRequest();
 
@@ -272,17 +292,6 @@
                 let res = JSON.parse(this.responseText)
                 if (res.status == 1) {
                     pricesOpSkins = res.response;
-                    unfilteredInventory.forEach(item =>{
-                        // REMOVE THIS ONCE STOCK WEAPONS ARE REMOVED FROM INVENTORY
-                        try{
-                            item.price = (pricesOpSkins[item.name].price / 100);
-                        }
-                        catch(e){
-                            // shout out to cathal
-                        }
-                        document.getElementById('tableBody').innerHTML = '';
-                        populateTable(unfilteredInventory);
-                    });
                 }
                 else {
                     alert('Error getting OpSkins Prices')
@@ -291,6 +300,29 @@
         };
         xhttp.open("GET", APIOpSkins, true);
         xhttp.send();
+    }
+
+    function updatePricesOpSkins() {
+        inventoryUnfiltered.forEach(item =>{
+            // REMOVE THIS ONCE STOCK WEAPONS ARE REMOVED FROM INVENTORY
+            try{
+                item.price = (pricesOpSkins[item.name].price / 100);
+            }
+            catch(e){
+                // shout out to cathal
+            }
+        });
+    }
+
+
+    // filter items by type
+    function filterInventory(type){
+        inventoryFiltered = [];
+        inventoryUnfiltered.forEach(item => {
+            if (item.type == type){
+                inventoryFiltered.push(item);
+            }
+        });
     }
 
 </script>
