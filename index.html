@@ -31,7 +31,7 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Amount</th>
-                <th>OpSkins</th>
+                <th id="thOpSkins">OpSkins</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -58,6 +58,8 @@
 
     let types = [];
 
+    let sortByPrice = 'ascending';
+
 
     window.onload = function () {
         // url with CORS fix
@@ -67,8 +69,17 @@
         // get prices
         getPricesOpSkins();
 
+        // add event listeners
         let buttonCalculate = document.getElementById('btnGo');
         let steam64ID = document.getElementById('tbxSteamID');
+        
+        document.getElementById('thOpSkins').addEventListener('click',
+            function(){
+                console.log(inventoryUnfiltered);
+                sortInventoryByPrice();
+                populateTable(inventoryUnfiltered);
+            },
+        false);
 
         document.getElementById('btnFilter').addEventListener('click',
             function(){
@@ -165,7 +176,10 @@
         tempInventory = removeDuplicateNameEntries(tempInventory);
         /* now remove all the null rows so we have no issues when making the table */
         tempInventory = removeNullsFromArray(tempInventory);
-
+        /* now remove items which are invalid such as stock items */
+        console.log(tempInventory);
+        tempInventory = sanitiseArray(tempInventory);
+        console.log(tempInventory);
         inventoryUnfiltered = tempInventory;
 
         getTypes(inventoryUnfiltered);
@@ -175,7 +189,6 @@
         populateTable(inventoryUnfiltered);
 
     }
-
     function populateTable(inventory) {
         let tableBody = document.getElementById('tableBody');
         tableBody.innerHTML = '';
@@ -203,7 +216,17 @@
         }
         return array;
     }
-
+    
+    /** This is a description. */
+    function sanitiseArray(array) {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].type.includes('Stock')) {
+                array.splice(i, 1)
+                i--;
+            }
+        }
+        return array;
+    }
 
     // Get different types from items for sorting
     function getTypes(array) {
@@ -270,6 +293,35 @@
         }
         else {
             alert('Yo, enter a correct value for sorting types friend');
+        }
+    }
+
+    // sort by price
+    function sortInventoryByPrice() {
+        let compare;
+        //already descending, change to ascending and sort ascending
+        if (sortByPrice == 'descending') {
+            sortByPrice = 'ascending';
+            compare = function (a, b) {
+                if (a.price < b.price)
+                    return -1;
+                if (a.price > b.price)
+                    return 1;
+                return 0;
+            }
+            inventoryUnfiltered.sort(compare);
+        } else if (sortByPrice == 'ascending') { // already ascending, change to desecnding and sort descedning
+            sortByPrice = 'descending';
+            compare = function (a, b) {
+                if (a.price < b.price)
+                    return 1;
+                if (a.price > b.price)
+                    return -1;
+                return 0;
+            }
+            inventoryUnfiltered.sort(compare);
+        } else {
+            alert('Yo, value wrong for sorting prices friend');
         }
     }
 
