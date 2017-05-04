@@ -2,379 +2,437 @@
 <html>
 
 <head>
-    <title>CSGO Inventory Valuator</title>
+  <title>CSGO Inventory Valuator</title>
 </head>
 
 <body>
-    <h1>CSGO Inventory Valuator <span style="font-size : 10px;">by Szenmu</span></h1>
-    <h4>OpSkins Prices : <span id="timeOpSkins">No Prices</span></h4>
-    <button>Update Steam</button><button id="btnOpSkins">Update OpSkins</button><button>Update BitSkins</button>
-    </br>
-    </br>
-    <a href="https://opskins.com/kb/api-ipricing" target="_blank">OpSkins API</a>
-    </br>
-    </br>
-    <input type="text" id="tbxSteamID" placeholder="Steam64ID" value="76561198060787905" />
-    <button id="btnGo">Go!</button>
-    </br>
-    <button id="btnFilter">Filter Test</button>
-    <p id="area">loading</p>
-    <p id="total"></p>
+  <h1>CSGO Inventory Valuator <span style="font-size : 10px;">by Szenmu</span></h1>
+  <button>Update Steam</button><button id="btnOpSkins">Update OpSkins</button><button>Update BitSkins</button>
+  </br>
+  </br>
+  <a href="https://opskins.com/kb/api-ipricing" target="_blank">OpSkins API</a>
+  </br>
+  </br>
+  <input type="text" id="tbxSteamID" placeholder="Steam64ID" value="76561198060787905" />
+  <button id="btnGo">Go!</button>
+  </br>
+  <button id="btnFilter">Filter Test</button>
+  <p id="area">loading</p>
+  <p id="total"></p>
 
-    <ul id="types">
+  <ul id="types">
 
-    </ul>
+  </ul>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th id="thOpSkins">OpSkins</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-        </tbody>
-    </table>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th id="thOpSkins">OpSkins</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+    </tbody>
+  </table>
 </body>
 
 </html>
 
 <script>
-    /************
+  /************
     *    APIs   *
     *************/
-    let APIOpSkins = 'https://api.opskins.com/IPricing/GetAllLowestListPrices/v1/?appid=730';
+  let urlOpSkinsAPI = 'https://api.opskins.com/IPricing/GetAllLowestListPrices/v1/?appid=730';
+  let urlSteamInventoryAPI = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
+
+  let pricesOpSkins = null;
+  let pricesSteam = null;
+  let pricesBitSkins = null;
+
+  let inventoryUnfiltered = [];
+  let inventoryFiltered = [];
+
+  let types = [];
+
+  let sortByPrice = 'ascending';
 
 
-    /***********
-     *  Prices *
-     ***********/
-    let pricesOpSkins = null;
+  window.onload = function () {
+    getAsync(urlOpSkinsAPI,function(response){getPricesOpSkins(response)});
+    getAsync(urlSteamInventoryAPI,function(response){getSteamInventory(response)});
+    //pricesOpSkins = getPricesOpSkins(urlOpSkinsAPI);
+    /*// url with CORS fix
+    //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
 
-    let inventoryUnfiltered = [];
-    let inventoryFiltered = [];
+    // get prices
+    getPricesOpSkins();
 
-    let types = [];
+    // add event listeners
+    let buttonCalculate = document.getElementById('btnGo');
+    let steam64ID = document.getElementById('tbxSteamID');
 
-    let sortByPrice = 'ascending';
-
-
-    window.onload = function () {
-        // url with CORS fix
-        //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
-        let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
-
-        // get prices
-        getPricesOpSkins();
-
-        // add event listeners
-        let buttonCalculate = document.getElementById('btnGo');
-        let steam64ID = document.getElementById('tbxSteamID');
-        
-        document.getElementById('thOpSkins').addEventListener('click',
-            function(){
-                console.log(inventoryUnfiltered);
-                sortInventoryByPrice();
-                populateTable(inventoryUnfiltered);
-            },
-        false);
-
-        document.getElementById('btnFilter').addEventListener('click',
-            function(){
-                filterInventory('High Grade Sticker');
-                populateTable(inventoryFiltered);
-            },false);
-
-        document.getElementById('btnOpSkins').addEventListener('click',function(){ updatePricesOpSkins();populateTable(inventoryUnfiltered)}, false);
-
-        buttonCalculate.addEventListener('click', function () {
-            reset();
-
-            // prompt user request sent
-            document.getElementById('area').innerHTML = 'sent, waiting on response...';
-
-            // get inventory input
-            url = 'https://crossorigin.me/http://steamcommunity.com/inventory/' + steam64ID.value + '/730/2?l=english&count=5000';
-            var xhttp = new XMLHttpRequest();
-
-            // async returned ok
-            xhttp.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById('area').innerHTML = 'response back!';
-                    parseJSON(this.responseText);
-
-                }
-            };
-            xhttp.open("GET", url, true);
-            xhttp.send();
-
-        });
-
-
-        var xhttp = new XMLHttpRequest();
-
-        // async returned ok
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById('area').innerHTML = 'response back!';
-                parseJSON(this.responseText);
-
-            }
-        };
-
-        xhttp.open("GET", url, true);
-        xhttp.send();
-
-        // prompt user that request is sent
-        document.getElementById('area').innerHTML = 'sent, waiting on response...';
-    };
-
-    function parseJSON(response) {
-        let tempData = JSON.parse(response);
-
-        // total items in inventory
-        let total = document.getElementById('total').innerHTML = 'Total items : ' + tempData.total_inventory_count;
-
-
-        // Count number of each item
-        let tempInventory = [];
-        tempData.assets.forEach(element => {
-            let contains = { found: false, index: 0 };
-            for (let i = 0; i < tempInventory.length; i++) {
-                if (tempInventory[i].classid == element.classid) {
-                    contains.found = true;
-                    contains.index = i;
-                    break;
-                }
-            }
-            if (contains.found) {
-                tempInventory[contains.index].amount += 1;
-            }
-            else {
-                tempInventory.push({
-                    classid: element.classid,
-                    amount: 1,
-                });
-            }
-        });
-
-        tempInventory.forEach(item => {
-            for (let i = 0; i < tempData.descriptions.length; i++) {
-                if (item.classid == tempData.descriptions[i].classid) {
-                    item.name = tempData.descriptions[i].market_hash_name;
-                    item.type = tempData.descriptions[i].type;
-                    item.tag_type = tempData.descriptions[i].tags[0].localized_tag_name;
-                    break;
-                }
-            }
-        });
-
-        /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
-            the same name but have different classids. This sorts through the items that have the same name but different class ids */
-        tempInventory = removeDuplicateNameEntries(tempInventory);
-        /* now remove all the null rows so we have no issues when making the table */
-        tempInventory = removeNullsFromArray(tempInventory);
-        /* now remove items which are invalid such as stock items */
-        console.log(tempInventory);
-        tempInventory = sanitiseArray(tempInventory);
-        console.log(tempInventory);
-        inventoryUnfiltered = tempInventory;
-
-        getTypes(inventoryUnfiltered);
-        sortTypesAmount('descending');
-        printTypes();
-        // fill table
+    document.getElementById('thOpSkins').addEventListener('click',
+      function () {
+        console.log(inventoryUnfiltered);
+        sortInventoryByPrice();
         populateTable(inventoryUnfiltered);
+      },
+      false);
 
-    }
-    function populateTable(inventory) {
-        let tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = '';
-        inventory.forEach(element => {
-            tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td><td>' + '$' + element.price + '</td></tr>';
-        });
-    }
-    function removeDuplicateNameEntries(array) {
-        for (let i = 0; i < array.length; i++) {
-            for (let j = 0; j < array.length; j++) {
-                if (array[i] != null && array[j] != null && array[i].name == array[j].name && i != j) {
-                    array[i].amount += array[j].amount;
-                    array[j] = null;
-                }
-            }
+    document.getElementById('btnFilter').addEventListener('click',
+      function () {
+        filterInventory('High Grade Sticker');
+        populateTable(inventoryFiltered);
+      }, false);
+
+    document.getElementById('btnOpSkins').addEventListener('click', function () { updatePricesOpSkins(); tempPopTable(inventoryUnfiltered) }, false);
+
+    buttonCalculate.addEventListener('click', function () {
+      reset();
+
+      // prompt user request sent
+      document.getElementById('area').innerHTML = 'sent, waiting on response...';
+
+      // get inventory input
+      url = 'https://crossorigin.me/http://steamcommunity.com/inventory/' + steam64ID.value + '/730/2?l=english&count=5000';
+      var xhttp = new XMLHttpRequest();
+
+      // async returned ok
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById('area').innerHTML = 'response back!';
+          parseJSON(this.responseText);
+
         }
-        return array;
-    }
-    function removeNullsFromArray(array) {
-        for (let i = 0; i < array.length; i++) {
-            if (array[i] == null) {
-                array.splice(i, 1)
-                i--;
-            }
-        }
-        return array;
-    }
+      };
+      xhttp.open("GET", url, true);
+      xhttp.send();
+
+    });
+
+
     
-    /** This is a description. */
-    function sanitiseArray(array) {
-        for (let i = 0; i < array.length; i++) {
-            if (array[i].type.includes('Stock')) {
-                array.splice(i, 1)
-                i--;
-            }
-        }
-        return array;
-    }
 
-    // Get different types from items for sorting
-    function getTypes(array) {
-        array.forEach(item => {
-            let contains = { found: false, index: 0 };
-            for (let i = 0; i < types.length; i++) {
-                if (types[i].type == item.type) {
-                    contains.found = true;
-                    contains.index = i;
-                    break;
-                }
-            }
-            if (contains.found) {
-                types[contains.index].amount += item.amount;
-            }
-            else {
-                types.push({
-                    type: item.type,
-                    amount: item.amount,
-                });
-            }
-        });
-    }
-    // print types onto screen, setting up click events for sorting
-    function printTypes() {
-        let typeArea = document.getElementById('types');
-
-        for(let i = 0; i < types.length; i++){
-            let tempID = 'type' + i;
-            typeArea.innerHTML += '<li id="' + tempID + '">' + types[i].type + ' - ' + types[i].amount + '</li>';
-        }
-
-        for(let i = 0; i < types.length; i++){
-            let tempID = 'type' + i;
-            document.getElementById(tempID).addEventListener('click',function(){
-                    filterInventory(types[i].type);
-                    populateTable(inventoryFiltered);
-                },false);
-        }
-    }
-
-    // sort types by amount 
-    function sortTypesAmount(order) {
-        let compare;
-        if (order == 'ascending') {
-            compare = function (a, b) {
-                if (a.amount < b.amount)
-                    return -1;
-                if (a.amount > b.amount)
-                    return 1;
-                return 0;
-            }
-            types.sort(compare);
-        }
-        else if (order == 'descending') {
-            compare = function (a, b) {
-                if (a.amount < b.amount)
-                    return 1;
-                if (a.amount > b.amount)
-                    return -1;
-                return 0;
-            }
-            types.sort(compare);
+    // prompt user that request is sent
+    document.getElementById('area').innerHTML = 'sent, waiting on response...';*/
+  };
+  /*function getPricesOpSkinsOld(url) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        let res = JSON.parse(this.responseText)
+        if (res.status == 1) {
+          console.log('getPricesOpSkins successful...');
+          return res.response;
         }
         else {
-            alert('Yo, enter a correct value for sorting types friend');
+          console.log('getPriceOpSkins failed...')
         }
-    }
+      }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  }*/
+  // TODO: Do this
+  function getPricesSteam() {
+    return true;
+    console.log('getPricesSteam failed...')
+  }
+  // TODO: Do this
+  function getPricesBitSkins() {
+     return true;
+     console.log('getPricesBitSkins failed...')
+  }
+  /*function getSteamInventoryOld(url) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        console.log('getSteamInventory success...')
+        return this.responseText;
+      }
+      else{
+        console.log('getSteamInventory failed...')
+      }
+    };
 
-    // sort by price
-    function sortInventoryByPrice() {
-        let compare;
-        //already descending, change to ascending and sort ascending
-        if (sortByPrice == 'descending') {
-            sortByPrice = 'ascending';
-            compare = function (a, b) {
-                if (a.price < b.price)
-                    return -1;
-                if (a.price > b.price)
-                    return 1;
-                return 0;
-            }
-            inventoryUnfiltered.sort(compare);
-        } else if (sortByPrice == 'ascending') { // already ascending, change to desecnding and sort descedning
-            sortByPrice = 'descending';
-            compare = function (a, b) {
-                if (a.price < b.price)
-                    return 1;
-                if (a.price > b.price)
-                    return -1;
-                return 0;
-            }
-            inventoryUnfiltered.sort(compare);
-        } else {
-            alert('Yo, value wrong for sorting prices friend');
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  }*/
+
+
+  /** Performs an async get request and returns the response parsed as an object. */
+  function getAsync (url,callback) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        callback(JSON.parse(this.responseText));
+      }
+      else{
+        console.log('getAsync failed');
+      }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  }
+
+  /** Handle return of OpSkins Prices*/
+  function getPricesOpSkins(response){
+    if (response.status == 1) {
+      console.log('getPricesOpSkins successful...');
+      inventoryUnfiltered = response.response;
+    }
+    else {
+      console.log('getPriceOpSkins failed...')
+    }
+  }
+
+  /** Handle steam inventory return */
+  function getSteamInventory(response) {
+    console.log('getSteamInventoryTest successful...');
+    inventoryUnfiltered = response;
+  }
+
+
+
+  function parseJSON(response) {
+    let tempData = JSON.parse(response);
+
+    // total items in inventory
+    let total = document.getElementById('total').innerHTML = 'Total items : ' + tempData.total_inventory_count;
+
+
+    // Count number of each item
+    let tempInventory = [];
+    tempData.assets.forEach(element => {
+      let contains = { found: false, index: 0 };
+      for (let i = 0; i < tempInventory.length; i++) {
+        if (tempInventory[i].classid == element.classid) {
+          contains.found = true;
+          contains.index = i;
+          break;
         }
-    }
-
-    // reset screen
-    function reset() {
-        inventoryUnfiltered = [];
-        types = [];
-        document.getElementById('total').innerHTML = '';
-        document.getElementById('types').innerHTML = '';
-        document.getElementById('tableBody').innerHTML = '';
-    }
-
-    function getPricesOpSkins(){
-        document.getElementById('timeOpSkins').innerHTML = Date().toString();
-        var xhttp = new XMLHttpRequest();
-
-        // async returned ok
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                let res = JSON.parse(this.responseText)
-                if (res.status == 1) {
-                    pricesOpSkins = res.response;
-                }
-                else {
-                    alert('Error getting OpSkins Prices')
-                }
-            }
-        };
-        xhttp.open("GET", APIOpSkins, true);
-        xhttp.send();
-    }
-
-    function updatePricesOpSkins() {
-        inventoryUnfiltered.forEach(item =>{
-            // REMOVE THIS ONCE STOCK WEAPONS ARE REMOVED FROM INVENTORY
-            try{
-                item.price = (pricesOpSkins[item.name].price / 100);
-            }
-            catch(e){
-                // shout out to cathal
-            }
+      }
+      if (contains.found) {
+        tempInventory[contains.index].amount += 1;
+      }
+      else {
+        tempInventory.push({
+          classid: element.classid,
+          amount: 1,
         });
+      }
+    });
+
+    tempInventory.forEach(item => {
+      for (let i = 0; i < tempData.descriptions.length; i++) {
+        if (item.classid == tempData.descriptions[i].classid) {
+          item.name = tempData.descriptions[i].market_hash_name;
+          item.type = tempData.descriptions[i].type;
+          item.tag_type = tempData.descriptions[i].tags[0].localized_tag_name;
+          break;
+        }
+      }
+    });
+
+    /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
+        the same name but have different classids. This sorts through the items that have the same name but different class ids */
+    tempInventory = removeDuplicateNameEntries(tempInventory);
+    /* now remove all the null rows so we have no issues when making the table */
+    tempInventory = removeNullsFromArray(tempInventory);
+    tempInventory = sanitiseArray(tempInventory);
+    inventoryUnfiltered = tempInventory;
+
+    getTypes(inventoryUnfiltered);
+    sortTypesAmount('descending');
+    printTypes();
+    // fill table
+    populateTable(inventoryUnfiltered);
+
+  }
+  function populateTable(inventory) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+    inventory.forEach(element => {
+      tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td><td>' + '$' + element.price + '</td></tr>';
+    });
+  }
+  function removeDuplicateNameEntries(array) {
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < array.length; j++) {
+        if (array[i] != null && array[j] != null && array[i].name == array[j].name && i != j) {
+          array[i].amount += array[j].amount;
+          array[j] = null;
+        }
+      }
     }
-
-
-    // filter items by type
-    function filterInventory(type){
-        inventoryFiltered = [];
-        inventoryUnfiltered.forEach(item => {
-            if (item.type == type){
-                inventoryFiltered.push(item);
-            }
+    return array;
+  }
+  function removeNullsFromArray(array) {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i] == null) {
+        array.splice(i, 1)
+        i--;
+      }
+    }
+    return array;
+  }
+  /*
+  * Remove items such as stock skins from array that mess up the program
+  * TODO: should not remove them but mark as something else
+  */
+  function sanitiseArray(array) {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i].type.includes('Stock')) {
+        array.splice(i, 1)
+        i--;
+      }
+    }
+    return array;
+  }
+  // Get different types from items for sorting
+  function getTypes(array) {
+    array.forEach(item => {
+      let contains = { found: false, index: 0 };
+      for (let i = 0; i < types.length; i++) {
+        if (types[i].type == item.type) {
+          contains.found = true;
+          contains.index = i;
+          break;
+        }
+      }
+      if (contains.found) {
+        types[contains.index].amount += item.amount;
+      }
+      else {
+        types.push({
+          type: item.type,
+          amount: item.amount,
         });
+      }
+    });
+  }
+  // print types onto screen, setting up click events for sorting
+  function printTypes() {
+    let typeArea = document.getElementById('types');
+
+    for (let i = 0; i < types.length; i++) {
+      let tempID = 'type' + i;
+      typeArea.innerHTML += '<li id="' + tempID + '">' + types[i].type + ' - ' + types[i].amount + '</li>';
     }
+
+    for (let i = 0; i < types.length; i++) {
+      let tempID = 'type' + i;
+      document.getElementById(tempID).addEventListener('click', function () {
+        filterInventory(types[i].type);
+        populateTable(inventoryFiltered);
+      }, false);
+    }
+  }
+
+  // sort types by amount 
+  function sortTypesAmount(order) {
+    let compare;
+    if (order == 'ascending') {
+      compare = function (a, b) {
+        if (a.amount < b.amount)
+          return -1;
+        if (a.amount > b.amount)
+          return 1;
+        return 0;
+      }
+      types.sort(compare);
+    }
+    else if (order == 'descending') {
+      compare = function (a, b) {
+        if (a.amount < b.amount)
+          return 1;
+        if (a.amount > b.amount)
+          return -1;
+        return 0;
+      }
+      types.sort(compare);
+    }
+    else {
+      alert('Yo, enter a correct value for sorting types friend');
+    }
+  }
+
+  // sort by price
+  function sortInventoryByPrice() {
+    let compare;
+    //already descending, change to ascending and sort ascending
+    if (sortByPrice == 'descending') {
+      sortByPrice = 'ascending';
+      compare = function (a, b) {
+        if (a.price < b.price)
+          return -1;
+        if (a.price > b.price)
+          return 1;
+        return 0;
+      }
+      inventoryUnfiltered.sort(compare);
+    } else if (sortByPrice == 'ascending') { // already ascending, change to desecnding and sort descedning
+      sortByPrice = 'descending';
+      compare = function (a, b) {
+        if (a.price < b.price)
+          return 1;
+        if (a.price > b.price)
+          return -1;
+        return 0;
+      }
+      inventoryUnfiltered.sort(compare);
+    } else {
+      alert('Yo, value wrong for sorting prices friend');
+    }
+  }
+
+  // reset screen
+  function reset() {
+    inventoryUnfiltered = [];
+    types = [];
+    document.getElementById('total').innerHTML = '';
+    document.getElementById('types').innerHTML = '';
+    document.getElementById('tableBody').innerHTML = '';
+  }
+
+  
+
+  function updatePricesOpSkins() {
+    inventoryUnfiltered.forEach(item => {
+      // REMOVE THIS ONCE STOCK WEAPONS ARE REMOVED FROM INVENTORY
+      try {
+        item.price = (pricesOpSkins[item.name].price / 100);
+      }
+      catch (e) {
+        // shout out to cathal
+      }
+    });
+  }
+
+
+  // filter items by type
+  function filterInventory(type) {
+    inventoryFiltered = [];
+    inventoryUnfiltered.forEach(item => {
+      if (item.type == type) {
+        inventoryFiltered.push(item);
+      }
+    });
+  }
+
+  function tempPopTable(inventory) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+    inventory.forEach(element => {
+      tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + '$' + element.price + '</td><td>'  + element.amount + '</td></tr>';
+    });
+  }
+
+  
+
+
+
 
 </script>
