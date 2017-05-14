@@ -6,24 +6,10 @@
 </head>
 
 <body>
-  <h1>CSGO Inventory Valuator <span style="font-size : 10px;">by Szenmu</span></h1>
-  <button>Update Steam</button><button id="btnOpSkins">Update OpSkins</button><button>Update BitSkins</button>
-  </br>
-  </br>
-  <a href="https://opskins.com/kb/api-ipricing" target="_blank">OpSkins API</a>
-  </br>
-  </br>
-  <input type="text" id="tbxSteamID" placeholder="Steam64ID" value="76561198060787905" />
-  <button id="btnGo">Go!</button>
-  </br>
-  <button id="btnFilter">Filter Test</button>
-  <p id="area">loading</p>
   <p id="total"></p>
-
   <ul id="types">
 
   </ul>
-
   <table>
     <thead>
       <tr>
@@ -60,108 +46,24 @@
 
 
   window.onload = function () {
-    getAsync(urlOpSkinsAPI,function(response){getPricesOpSkins(response)});
-    getAsync(urlSteamInventoryAPI,function(response){getSteamInventory(response)});
-    //pricesOpSkins = getPricesOpSkins(urlOpSkinsAPI);
-    /*// url with CORS fix
-    //let url = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198067565454/730/2?l=english&count=5000'; // My inventory
-
-    // get prices
+    getSteamInventory();
     getPricesOpSkins();
-
-    // add event listeners
-    let buttonCalculate = document.getElementById('btnGo');
-    let steam64ID = document.getElementById('tbxSteamID');
-
-    document.getElementById('thOpSkins').addEventListener('click',
-      function () {
-        console.log(inventoryUnfiltered);
-        sortInventoryByPrice();
-        populateTable(inventoryUnfiltered);
-      },
-      false);
-
-    document.getElementById('btnFilter').addEventListener('click',
-      function () {
-        filterInventory('High Grade Sticker');
-        populateTable(inventoryFiltered);
-      }, false);
-
-    document.getElementById('btnOpSkins').addEventListener('click', function () { updatePricesOpSkins(); tempPopTable(inventoryUnfiltered) }, false);
-
-    buttonCalculate.addEventListener('click', function () {
-      reset();
-
-      // prompt user request sent
-      document.getElementById('area').innerHTML = 'sent, waiting on response...';
-
-      // get inventory input
-      url = 'https://crossorigin.me/http://steamcommunity.com/inventory/' + steam64ID.value + '/730/2?l=english&count=5000';
-      var xhttp = new XMLHttpRequest();
-
-      // async returned ok
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          document.getElementById('area').innerHTML = 'response back!';
-          parseJSON(this.responseText);
-
-        }
-      };
-      xhttp.open("GET", url, true);
-      xhttp.send();
-
-    });
-
-
+    getPricesSteam();
+    getPricesBitSkins();
     
 
-    // prompt user that request is sent
-    document.getElementById('area').innerHTML = 'sent, waiting on response...';*/
+    // TODO: these need to be called after the other stuff
+    /*
+    getTypes(inventoryUnfiltered);
+    sortTypesAmount('descending');
+    printTypes();
+    // fill table
+    populateTable(inventoryUnfiltered);
+    */
   };
-  /*function getPricesOpSkinsOld(url) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        let res = JSON.parse(this.responseText)
-        if (res.status == 1) {
-          console.log('getPricesOpSkins successful...');
-          return res.response;
-        }
-        else {
-          console.log('getPriceOpSkins failed...')
-        }
-      }
-    };
-    xhttp.open("GET", url, true);
-    xhttp.send();
-  }*/
-  // TODO: Do this
-  function getPricesSteam() {
-    return true;
-    console.log('getPricesSteam failed...')
-  }
-  // TODO: Do this
-  function getPricesBitSkins() {
-     return true;
-     console.log('getPricesBitSkins failed...')
-  }
-  /*function getSteamInventoryOld(url) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        console.log('getSteamInventory success...')
-        return this.responseText;
-      }
-      else{
-        console.log('getSteamInventory failed...')
-      }
-    };
 
-    xhttp.open("GET", url, true);
-    xhttp.send();
-  }*/
-
-
+  
+  
   /** Performs an async get request and returns the response parsed as an object. */
   function getAsync (url,callback) {
     var xhttp = new XMLHttpRequest();
@@ -177,35 +79,63 @@
     xhttp.send();
   }
 
-  /** Handle return of OpSkins Prices*/
-  function getPricesOpSkins(response){
+  /** Gets OpSkins Prices */
+  function getPricesOpSkins(){
+    getAsync(urlOpSkinsAPI,function(response){
+      handlePricesOpSkins(response)
+    });
+  }
+
+  /** Handle OpSkins prices */
+  function handlePricesOpSkins(response){
     if (response.status == 1) {
       console.log('getPricesOpSkins successful...');
-      inventoryUnfiltered = response.response;
+      pricesOpSkins = response.response;
+      console.log(pricesOpSkins);
     }
     else {
       console.log('getPriceOpSkins failed...')
     }
   }
 
-  /** Handle steam inventory return */
-  function getSteamInventory(response) {
-    console.log('getSteamInventoryTest successful...');
-    inventoryUnfiltered = response;
+  /** Gets Steam inventory */
+  function getSteamInventory(){
+    getAsync(urlSteamInventoryAPI,function(response){
+      handleSteamInventory(response)
+    });
   }
 
+  /** Handle Steam inventory */
+  function handleSteamInventory(response){
+    console.log('getSteamInventoryTest successful...');
+    inventoryUnfiltered = inventoryGroupItems(response);
+    /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
+        the same name but have different classids. This sorts through the items that have the same name but different class ids */
+    inventoryUnfiltered = removeDuplicateNameEntries(inventoryUnfiltered);
+    /* now remove all the null rows so we have no issues when making the table */
+    inventoryUnfiltered = removeNullsFromArray(inventoryUnfiltered);
+    inventoryUnfiltered = sanitiseArray(inventoryUnfiltered);
+    console.log(inventoryUnfiltered);
+  }
 
+  // TODO: Do this
+  function getPricesSteam() {
+    console.log('getPricesSteam failed...')
+    return true;
+  }
 
-  function parseJSON(response) {
-    let tempData = JSON.parse(response);
+  // TODO: Do this
+  function getPricesBitSkins() {
+     console.log('getPricesBitSkins failed...')
+     return true;
+  }
 
-    // total items in inventory
-    let total = document.getElementById('total').innerHTML = 'Total items : ' + tempData.total_inventory_count;
-
+  /** groups duplicate items together */
+  function inventoryGroupItems(response) {
 
     // Count number of each item
     let tempInventory = [];
-    tempData.assets.forEach(element => {
+    response.assets.forEach(element => {
       let contains = { found: false, index: 0 };
       for (let i = 0; i < tempInventory.length; i++) {
         if (tempInventory[i].classid == element.classid) {
@@ -225,31 +155,19 @@
       }
     });
 
+    // add details to each item
     tempInventory.forEach(item => {
-      for (let i = 0; i < tempData.descriptions.length; i++) {
-        if (item.classid == tempData.descriptions[i].classid) {
-          item.name = tempData.descriptions[i].market_hash_name;
-          item.type = tempData.descriptions[i].type;
-          item.tag_type = tempData.descriptions[i].tags[0].localized_tag_name;
+      for (let i = 0; i < response.descriptions.length; i++) {
+        if (item.classid == response.descriptions[i].classid) {
+          item.name = response.descriptions[i].market_hash_name;
+          item.type = response.descriptions[i].type;
+          item.tag_type = response.descriptions[i].tags[0].localized_tag_name;
           break;
         }
       }
     });
 
-    /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
-        the same name but have different classids. This sorts through the items that have the same name but different class ids */
-    tempInventory = removeDuplicateNameEntries(tempInventory);
-    /* now remove all the null rows so we have no issues when making the table */
-    tempInventory = removeNullsFromArray(tempInventory);
-    tempInventory = sanitiseArray(tempInventory);
-    inventoryUnfiltered = tempInventory;
-
-    getTypes(inventoryUnfiltered);
-    sortTypesAmount('descending');
-    printTypes();
-    // fill table
-    populateTable(inventoryUnfiltered);
-
+    return tempInventory
   }
   function populateTable(inventory) {
     let tableBody = document.getElementById('tableBody');
@@ -396,9 +314,6 @@
     document.getElementById('types').innerHTML = '';
     document.getElementById('tableBody').innerHTML = '';
   }
-
-  
-
   function updatePricesOpSkins() {
     inventoryUnfiltered.forEach(item => {
       // REMOVE THIS ONCE STOCK WEAPONS ARE REMOVED FROM INVENTORY
@@ -410,8 +325,6 @@
       }
     });
   }
-
-
   // filter items by type
   function filterInventory(type) {
     inventoryFiltered = [];
@@ -421,7 +334,6 @@
       }
     });
   }
-
   function tempPopTable(inventory) {
     let tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
@@ -429,9 +341,6 @@
       tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + '$' + element.price + '</td><td>'  + element.amount + '</td></tr>';
     });
   }
-
-  
-
 
 
 
