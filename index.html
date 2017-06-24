@@ -6,6 +6,10 @@
 </head>
 
 <body>
+  <div>Steam Inventory <span id="loadingSteamInventory"></span></div>
+  <div>Steam Prices <span id="loadingSteamPrices"></span></div>
+  <div>OpSkins Prices <span id="loadingOpSkinsPrices"></span></div>
+  <div>BitSkins Prices <span id="loadingBitSkinsPrices"></span></div>
   <p id="total"></p>
   <ul id="types">
 
@@ -27,11 +31,16 @@
 </html>
 
 <script>
-  /************
-    *    APIs   *
-    *************/
-  let urlOpSkinsAPI = 'https://api.opskins.com/IPricing/GetAllLowestListPrices/v1/?appid=730';
-  let urlSteamInventoryAPI = 'https://crossorigin.me/http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000'; // James' Inventory
+
+  let api = {
+    prices: {
+      opskins: 'https://api.opskins.com/IPricing/GetAllLowestListPrices/v1/?appid=730',
+      bitskins: '',
+      steam: ''
+    },
+    inventory: 'http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000', // James' Inventory
+    cors: 'https://crossorigin.me/'
+  };
 
   let pricesOpSkins = null;
   let pricesSteam = null;
@@ -46,12 +55,21 @@
 
 
   window.onload = function () {
-    getSteamInventory();
-    getPricesOpSkins();
-    getPricesSteam();
-    getPricesBitSkins();
-    
+    let loadingSteamInventory = document.getElementById('loadingSteamInventory');
+    let loadingOpSkinsPrices = document.getElementById('loadingOpSkinsPrices');
+    let loadingSteamPrices = document.getElementById('loadingSteamPrices');
+    let loadingBitSkinsPrices = document.getElementById('loadingBitSkinsPrices');
 
+    /*getSteamInventory();
+    getPricesOpSkins();*/
+
+    getSteamInventory()
+      .then(getPricesOpSkins)
+      .then(getPricesBitSkins)
+      .then(getPricesSteam)
+    
+    
+    
     // TODO: these need to be called after the other stuff
     /*
     getTypes(inventoryUnfiltered);
@@ -63,28 +81,74 @@
   };
 
   
-  
-  /** Performs an async get request and returns the response parsed as an object. */
-  function getAsync (url,callback) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        callback(JSON.parse(this.responseText));
-      }
-      else{
-        console.log('getAsync failed');
-      }
-    };
-    xhttp.open("GET", url, true);
-    xhttp.send();
-  }
 
-  /** Gets OpSkins Prices */
-  function getPricesOpSkins(){
-    getAsync(urlOpSkinsAPI,function(response){
-      handlePricesOpSkins(response)
+  let getSteamInventory = function() {
+    let promise = new Promise(function(resolve, reject){
+      console.log('Getting steam inventory....');
+      loadingSteamInventory.innerHTML = 'Loading...'
+
+      callApi(api.cors + api.inventory,function(){
+        loadingSteamInventory.innerHTML = 'DONE';
+        resolve();
+        
+        // TODO: Parse inventory here while loading carries on
+      });
+
     });
-  }
+    return promise;
+  };
+
+  let getPricesOpSkins = function() {
+    let promise = new Promise(function(resolve, reject){
+      console.log('Getting OpSkins prices....');
+      loadingOpSkinsPrices.innerHTML = 'Loading...';
+
+      callApi(api.prices.opskins,function(){
+        loadingOpSkinsPrices.innerHTML = 'DONE';
+        resolve();
+      });
+
+    });
+    return promise;
+  };
+  let getPricesBitSkins = function() {
+    let promise = new Promise(function(resolve, reject){
+      console.log('Getting Bitskins prices....');
+      loadingBitSkinsPrices.innerHTML = 'Loading...';
+
+      /*callApi(api.prices.opskins,function(){
+        resolve();
+      });*/
+      resolve();
+
+    });
+    return promise;
+  };
+
+  let getPricesSteam = function() {
+    let promise = new Promise(function(resolve, reject){
+      console.log('Getting Steam prices....');
+      loadingSteamPrices.innerHTML = 'Loading...';
+
+      /*callApi(api.prices.opskins,function(){
+        resolve();
+      });*/
+      resolve();
+
+    });
+    return promise;
+  };
+
+
+
+  function callApi(url,callback){
+    fetch(url).then(function(response) {
+      return response.json();
+    }).then(function(response){
+      callback();
+    });
+  }  
+ 
 
   /** Handle OpSkins prices */
   function handlePricesOpSkins(response){
@@ -98,12 +162,7 @@
     }
   }
 
-  /** Gets Steam inventory */
-  function getSteamInventory(){
-    getAsync(urlSteamInventoryAPI,function(response){
-      handleSteamInventory(response)
-    });
-  }
+  
 
   /** Handle Steam inventory */
   function handleSteamInventory(response){
@@ -116,18 +175,6 @@
     inventoryUnfiltered = removeNullsFromArray(inventoryUnfiltered);
     inventoryUnfiltered = sanitiseArray(inventoryUnfiltered);
     console.log(inventoryUnfiltered);
-  }
-
-  // TODO: Do this
-  function getPricesSteam() {
-    console.log('getPricesSteam failed...')
-    return true;
-  }
-
-  // TODO: Do this
-  function getPricesBitSkins() {
-     console.log('getPricesBitSkins failed...')
-     return true;
   }
 
   /** groups duplicate items together */
