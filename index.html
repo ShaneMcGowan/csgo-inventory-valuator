@@ -147,6 +147,7 @@
 
       callApi(api.prices.opskins,function(response){
         console.log(response);
+        pricesOpSkins = response.response;
         loadingOpSkinsPrices.innerHTML = 'DONE';
         resolve();
       });
@@ -183,8 +184,11 @@
   let buildProfile = function() {
     let promise = new Promise(function(resolve, reject){
       console.log('Building profile....');
-      populateTable(inventoryUnfiltered)
+      updatePricesOpSkins();
+      // TODO: updatePricesBitSkins();
+      // TODO: updatePricesSteam();
       printTypes();
+      populateTable(inventoryUnfiltered)
       resolve();
 
     });
@@ -420,16 +424,27 @@
     document.getElementById('tableBody').innerHTML = '';
   }
   function updatePricesOpSkins() {
+    console.log(inventoryUnfiltered);
     inventoryUnfiltered.forEach(item => {
-      // REMOVE THIS ONCE STOCK WEAPONS ARE REMOVED FROM INVENTORY
+      // TODO: Graffiti messes this up
       try {
         item.price = (pricesOpSkins[item.name].price / 100);
       }
       catch (e) {
+        item.price = 0.00;
         // shout out to cathal
       }
     });
   }
+  // TODO:
+  function updatePricesBitSkins(){
+
+  }
+  // TODO:
+  function updatePricesSteam(){
+
+  }
+
   // filter items by type
   function filterInventory(type) {
     inventoryFiltered = [];
