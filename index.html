@@ -145,7 +145,7 @@
       console.log('Getting OpSkins prices....');
       loadingOpSkinsPrices.innerHTML = 'Loading...';
 
-      callApi(api.prices.opskins,function(response){
+      callApi(api.cors + api.prices.opskins,function(response){
         console.log(response);
         loadingOpSkinsPrices.innerHTML = 'DONE';
         resolve();
