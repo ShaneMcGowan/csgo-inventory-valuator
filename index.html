@@ -6,14 +6,33 @@
 </head>
 
 <body>
+  <span><strong>Profile URL : </strong></span>
+  <input id="inputProfileURL" type="text" value="http://steamcommunity.com/id/TOILETROLLMAN/" />
+  <button id="btnGetPrices">Go</button>
+  <!-- Loading Status -->
+  <div>Steam Profile <span id="loadingSteamProfile"></span></div>
   <div>Steam Inventory <span id="loadingSteamInventory"></span></div>
   <div>Steam Prices <span id="loadingSteamPrices"></span></div>
   <div>OpSkins Prices <span id="loadingOpSkinsPrices"></span></div>
   <div>BitSkins Prices <span id="loadingBitSkinsPrices"></span></div>
+
+  <!-- Profile -->
+  <div>
+    <img id="profileImage" src="" alt="profile image" />
+    <div id="profileSteamID">SteamID : </div>
+    <div id="profileSteamID64">SteamID64 : </div>
+    <div id="profileSteamCustomURL">Custom URL : </div>
+    <div id="profileVacBanned">Vac Banned : </div>
+    <div id="profileTradeBanned">Trade Banned : </div>
+    <div id="profileLimited">Limited : </div>
+    <div id="profileLastLogin">Last Login : </div>
+  </div>
+  <!-- Types -->
   <p id="total"></p>
   <ul id="types">
 
   </ul>
+  <!--
   <table>
     <thead>
       <tr>
@@ -26,6 +45,7 @@
     <tbody id="tableBody">
     </tbody>
   </table>
+  -->
 </body>
 
 </html>
@@ -33,13 +53,24 @@
 <script>
 
   let api = {
+    cors: 'https://crossorigin.me/',
+    inventory: {
+      base: 'http://steamcommunity.com/inventory/',
+      criteria: '/730/2?l=english&count=5000'
+    }, 
     prices: {
       opskins: 'https://api.opskins.com/IPricing/GetAllLowestListPrices/v1/?appid=730',
       bitskins: '',
       steam: ''
     },
-    inventory: 'http://steamcommunity.com/inventory/76561198060787905/730/2?l=english&count=5000', // James' Inventory
-    cors: 'https://crossorigin.me/'
+    profile: 'http://steamcommunity.com/id/TOILETROLLMAN/' // James' Inventory
+  };
+
+  let profile = {};
+
+  let inventory = {
+    filtered: [],
+    unfiltered: []
   };
 
   let pricesOpSkins = null;
@@ -59,20 +90,19 @@
     let loadingOpSkinsPrices = document.getElementById('loadingOpSkinsPrices');
     let loadingSteamPrices = document.getElementById('loadingSteamPrices');
     let loadingBitSkinsPrices = document.getElementById('loadingBitSkinsPrices');
+    document.getElementById('btnGetPrices').addEventListener('click',function(){getPrices()});
 
-    /*getSteamInventory();
-    getPricesOpSkins();*/
-
-    getSteamInventory()
+    /*getSteamProfile()
+      .then(getSteamInventory)
       .then(getPricesOpSkins)
       .then(getPricesBitSkins)
       .then(getPricesSteam)
-    
+    */
     
     
     // TODO: these need to be called after the other stuff
     /*
-    getTypes(inventoryUnfiltered);
+    
     sortTypesAmount('descending');
     printTypes();
     // fill table
@@ -80,30 +110,52 @@
     */
   };
 
-  
+  function getPrices(){
+    api.profile = document.getElementById('inputProfileURL').value;
+    getSteamProfile()
+      .then(getSteamInventory)
+      .then(getPricesOpSkins)
+      .then(getPricesBitSkins)
+      .then(getPricesSteam)
+  }
 
-  let getSteamInventory = function() {
+  let getSteamProfile = function(){
     let promise = new Promise(function(resolve, reject){
-      console.log('Getting steam inventory....');
-      loadingSteamInventory.innerHTML = 'Loading...'
+      console.log('Getting steam profile....');
+      loadingSteamProfile.innerHTML = 'Loading...';
 
-      callApi(api.cors + api.inventory,function(){
-        loadingSteamInventory.innerHTML = 'DONE';
-        resolve();
+      callApiXML(api.cors + api.profile + '?xml=1',function(response){
+        parseProfileXML(response);
+        resolve();    
+        populateProfile();
+        loadingSteamProfile.innerHTML = 'DONE';
         
-        // TODO: Parse inventory here while loading carries on
       });
 
     });
     return promise;
   };
+  let getSteamInventory = function() {
+    let promise = new Promise(function(resolve, reject){
+      console.log('Getting steam inventory....');
+      loadingSteamInventory.innerHTML = 'Loading...';
 
+      callApi(api.cors + api.inventory.base + profile.steamID64 + api.inventory.criteria,function(response){
+        loadingSteamInventory.innerHTML = 'DONE';
+        resolve();
+        handleSteamInventory(response);        
+      });
+
+    });
+    return promise;
+  };
   let getPricesOpSkins = function() {
     let promise = new Promise(function(resolve, reject){
       console.log('Getting OpSkins prices....');
       loadingOpSkinsPrices.innerHTML = 'Loading...';
 
-      callApi(api.prices.opskins,function(){
+      callApi(api.prices.opskins,function(response){
+        console.log(response);
         loadingOpSkinsPrices.innerHTML = 'DONE';
         resolve();
       });
@@ -113,8 +165,8 @@
   };
   let getPricesBitSkins = function() {
     let promise = new Promise(function(resolve, reject){
-      console.log('Getting Bitskins prices....');
-      loadingBitSkinsPrices.innerHTML = 'Loading...';
+      console.log('[TODO] Getting Bitskins prices....');
+      loadingBitSkinsPrices.innerHTML = 'COMING SOON';
 
       /*callApi(api.prices.opskins,function(){
         resolve();
@@ -124,11 +176,10 @@
     });
     return promise;
   };
-
   let getPricesSteam = function() {
     let promise = new Promise(function(resolve, reject){
-      console.log('Getting Steam prices....');
-      loadingSteamPrices.innerHTML = 'Loading...';
+      console.log('[TODO] Getting Steam prices....');
+      loadingSteamPrices.innerHTML = 'COMING SOON';
 
       /*callApi(api.prices.opskins,function(){
         resolve();
@@ -138,43 +189,37 @@
     });
     return promise;
   };
-
-
 
   function callApi(url,callback){
     fetch(url).then(function(response) {
       return response.json();
     }).then(function(response){
-      callback();
+      callback(response);
     });
-  }  
- 
+  }
 
-  /** Handle OpSkins prices */
-  function handlePricesOpSkins(response){
-    if (response.status == 1) {
-      console.log('getPricesOpSkins successful...');
-      pricesOpSkins = response.response;
-      console.log(pricesOpSkins);
-    }
-    else {
-      console.log('getPriceOpSkins failed...')
-    }
+  function callApiXML(url,callback){
+    fetch(url).then(function(response) {
+      return response.text();
+    }).then(function(response){
+      //TODO: Probably dont need this .then
+      callback(response);
+    });
   }
 
   
 
   /** Handle Steam inventory */
   function handleSteamInventory(response){
-    console.log('getSteamInventoryTest successful...');
     inventoryUnfiltered = inventoryGroupItems(response);
+    inventoryUnfiltered = sanitiseArray(inventoryUnfiltered);
     /*  Some items have different properties, eg 2 of the same skin but with different stickers, meaning they have
         the same name but have different classids. This sorts through the items that have the same name but different class ids */
     inventoryUnfiltered = removeDuplicateNameEntries(inventoryUnfiltered);
     /* now remove all the null rows so we have no issues when making the table */
     inventoryUnfiltered = removeNullsFromArray(inventoryUnfiltered);
-    inventoryUnfiltered = sanitiseArray(inventoryUnfiltered);
-    console.log(inventoryUnfiltered);
+    /* once all items are in the right format, parse them into a list of types */
+    getTypes(inventoryUnfiltered);
   }
 
   /** groups duplicate items together */
@@ -223,6 +268,18 @@
       tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.type + '</td><td>' + element.amount + '</td><td>' + '$' + element.price + '</td></tr>';
     });
   }
+
+  function populateProfile(){
+    let profileImage = document.getElementById('profileImage').src = profile.avatarFull;
+    let profileSteamID = document.getElementById('profileSteamID').innerHTML += profile.steamID;
+    let profileSteamID64 = document.getElementById('profileSteamID64').innerHTML += profile.steamID64;
+    let profileSteamCustomURL = document.getElementById('profileSteamCustomURL').innerHTML += profile.customURL;
+    let profileVacBanned = document.getElementById('profileVacBanned').innerHTML += profile.vacBanned;
+    let profileTradeBanned = document.getElementById('profileTradeBanned').innerHTML += profile.tradeBanState;
+    let profileLimited = document.getElementById('profileLimited').innerHTML += profile.isLimitedAccount;
+    let profileLastLogin = document.getElementById('profileLastLogin').innerHTML += profile.stateMessage;
+  };
+
   function removeDuplicateNameEntries(array) {
     for (let i = 0; i < array.length; i++) {
       for (let j = 0; j < array.length; j++) {
@@ -389,6 +446,22 @@
     });
   }
 
-
+  function parseProfileXML(xmlString){
+    let parser = new DOMParser();
+    let xml = parser.parseFromString(xmlString, "text/xml");
+    profile.steamID64 = removeCDATA(xml.getElementsByTagName("steamID64")[0].innerHTML);
+    profile.steamID = removeCDATA(xml.getElementsByTagName("steamID")[0].innerHTML);
+    profile.stateMessage = removeCDATA(xml.getElementsByTagName("stateMessage")[0].innerHTML);
+    profile.vacBanned = removeCDATA(xml.getElementsByTagName("vacBanned")[0].innerHTML);
+    profile.tradeBanState = removeCDATA(xml.getElementsByTagName("tradeBanState")[0].innerHTML);
+    profile.isLimitedAccount = removeCDATA(xml.getElementsByTagName("isLimitedAccount")[0].innerHTML);
+    profile.customURL = removeCDATA(xml.getElementsByTagName("customURL")[0].innerHTML);
+    profile.avatarFull = removeCDATA(xml.getElementsByTagName("avatarFull")[0].innerHTML);
+  }
+  
+  function removeCDATA(string){
+    return string.replace("<![CDATA[", "").replace("]]>", "");
+  }
 
 </script>
+
