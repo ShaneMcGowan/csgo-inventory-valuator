@@ -7,7 +7,7 @@
 
 <body>
   <span><strong>Profile URL : </strong></span>
-  <input id="inputProfileURL" type="text" value="http://steamcommunity.com/id/TOILETROLLMAN/" />
+  <input style="width:50%" id="inputProfileURL" type="text" value="http://steamcommunity.com/id/TOILETROLLMAN/" />
   <button id="btnGetPrices">Go</button>
   <!-- Loading Status -->
   <div>Steam Profile <span id="loadingSteamProfile"></span></div>
@@ -32,7 +32,6 @@
   <ul id="types">
 
   </ul>
-  <!--
   <table>
     <thead>
       <tr>
@@ -40,12 +39,13 @@
         <th>Type</th>
         <th>Amount</th>
         <th id="thOpSkins">OpSkins</th>
+        <th id="thBitSkins">BitSkins (Coming soon)</th>
+        <th id="thSteam">Steam (Coming soon)</th>
       </tr>
     </thead>
     <tbody id="tableBody">
     </tbody>
   </table>
-  -->
 </body>
 
 </html>
@@ -92,22 +92,12 @@
     let loadingBitSkinsPrices = document.getElementById('loadingBitSkinsPrices');
     document.getElementById('btnGetPrices').addEventListener('click',function(){getPrices()});
 
-    /*getSteamProfile()
+    getSteamProfile()
       .then(getSteamInventory)
       .then(getPricesOpSkins)
       .then(getPricesBitSkins)
       .then(getPricesSteam)
-    */
-    
-    
-    // TODO: these need to be called after the other stuff
-    /*
-    
-    sortTypesAmount('descending');
-    printTypes();
-    // fill table
-    populateTable(inventoryUnfiltered);
-    */
+      .then(buildProfile)
   };
 
   function getPrices(){
@@ -117,6 +107,7 @@
       .then(getPricesOpSkins)
       .then(getPricesBitSkins)
       .then(getPricesSteam)
+      .then(buildProfile)
   }
 
   let getSteamProfile = function(){
@@ -184,6 +175,16 @@
       /*callApi(api.prices.opskins,function(){
         resolve();
       });*/
+      resolve();
+
+    });
+    return promise;
+  };
+  let buildProfile = function() {
+    let promise = new Promise(function(resolve, reject){
+      console.log('Building profile....');
+      populateTable(inventoryUnfiltered)
+      printTypes();
       resolve();
 
     });
