@@ -3,18 +3,33 @@
 
 <head>
   <title>CSGO Inventory Valuator</title>
+  <style>
+    .centre{
+      margin: 0 auto;
+    }
+    .row{
+      margin: 10px;
+      display: inline-block;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="centre">
+    <div class="row">
+      <div>Steam Prices <span id="loadingSteamPrices"></span></div>
+      <div>OpSkins Prices <span id="loadingOpSkinsPrices"></span></div>
+      <div>BitSkins Prices <span id="loadingBitSkinsPrices"></span></div>
+    </div>
+  </div>
+  
   <span><strong>Profile URL : </strong></span>
   <input style="width:50%" id="inputProfileURL" type="text" value="http://steamcommunity.com/id/TOILETROLLMAN/" />
   <button id="btnGetPrices">Go</button>
   <!-- Loading Status -->
   <div>Steam Profile <span id="loadingSteamProfile"></span></div>
   <div>Steam Inventory <span id="loadingSteamInventory"></span></div>
-  <div>Steam Prices <span id="loadingSteamPrices"></span></div>
-  <div>OpSkins Prices <span id="loadingOpSkinsPrices"></span></div>
-  <div>BitSkins Prices <span id="loadingBitSkinsPrices"></span></div>
+
 
   <!-- Profile -->
   <div>
@@ -91,22 +106,17 @@
     let loadingSteamPrices = document.getElementById('loadingSteamPrices');
     let loadingBitSkinsPrices = document.getElementById('loadingBitSkinsPrices');
     document.getElementById('btnGetPrices').addEventListener('click',function(){getPrices()});
-
-    getSteamProfile()
-      .then(getSteamInventory)
-      .then(getPricesOpSkins)
+    
+    getPricesOpSkins()
       .then(getPricesBitSkins)
       .then(getPricesSteam)
-      .then(buildProfile)
+      
   };
 
   function getPrices(){
     api.profile = document.getElementById('inputProfileURL').value;
     getSteamProfile()
       .then(getSteamInventory)
-      .then(getPricesOpSkins)
-      .then(getPricesBitSkins)
-      .then(getPricesSteam)
       .then(buildProfile)
   }
 
