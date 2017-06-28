@@ -4,24 +4,31 @@
 <head>
   <title>CSGO Inventory Valuator</title>
   <style>
-    .centre{
-      margin: 0 auto;
+    * {
+      margin: 0;
+      padding: 0;
+      border: 0;
     }
-    .row{
-      margin: 10px;
-      display: inline-block;
+
+    .priceStatus{
+      margin-top: 15px;
     }
+
+    .one-third{
+      float: left;
+      width: 33.33333%;
+      text-align: center;
+    }
+
   </style>
 </head>
 
 <body>
-  <div class="centre">
-    <div class="row">
-      <div>Steam Prices <span id="loadingSteamPrices"></span></div>
-      <div>OpSkins Prices <span id="loadingOpSkinsPrices"></span></div>
-      <div>BitSkins Prices <span id="loadingBitSkinsPrices"></span></div>
-    </div>
-  </div>
+  <section class="priceStatus">
+    <div class="one-third">Steam Prices <span id="loadingSteamPrices"></span></div>
+    <div class="one-third">OpSkins Prices <span id="loadingOpSkinsPrices"></span></div>
+    <div class="one-third">BitSkins Prices <span id="loadingBitSkinsPrices"></span></div>
+  </section>
   
   <span><strong>Profile URL : </strong></span>
   <input style="width:50%" id="inputProfileURL" type="text" value="http://steamcommunity.com/id/TOILETROLLMAN/" />
