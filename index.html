@@ -437,40 +437,53 @@
       Container: 0,
       Knife: 0,
       Gloves: 0,
-      Skins: 0
+      Skins: 0,
+      Keys: 0
     };
 
     types.forEach(type => {
       /* Extra Filters */
+      let name = type.type;
       parsedTypes.All += type.amount;
 
-      if (type.type.includes('StatTrak')) {
+      if (name.includes('StatTrak')) {
         parsedTypes.StatTrak += type.amount;
       }
       
       /* Type Filters */
-      if (type.type.includes('Sticker')) {
+      if (name.includes('Sticker')) {
         parsedTypes.Sticker += type.amount;
         return;
       }
-      else if (type.type.includes('Graffiti')) {
+      else if (name.includes('Graffiti')) {
         parsedTypes.Graffiti += type.amount;
         return;
       }
-      else if (type.type.includes('Container')) {
+      else if (name.includes('Container')) {
         parsedTypes.Container += type.amount;
         return;
       }
-      else if (type.type.includes('Knife')) {
+      else if (name.includes('Knife')) {
         parsedTypes.Knife += type.amount;
         return;
       }
-      else if (type.type.includes('Gloves')) {
+      else if (name.includes('Gloves')) {
         parsedTypes.Gloves += type.amount;
         return;
       }
-      else {
-        parsedTypes.Skins += 1;
+      else if(name.includes('Key')){
+        parsedTypes.Keys += type.amount;
+        return;
+      }
+      else if(
+        name.includes('Sniper Rifle')
+        || name.includes('Rifle')
+        || name.includes('Pistol')
+        || name.includes('SMG')
+        || name.includes('Machinegun')
+        || name.includes('Shotgun') 
+      ){
+        parsedTypes.Skins += type.amount;
         return;
       }
     });
@@ -485,17 +498,22 @@
       filterInventory(type);
       populateTable(inventoryFiltered);
     }
+    // Add items to filter list
     typeArea.innerHTML += '<span id="typeAll"> All - ' + types.All + '</span>';
-
     typeArea.innerHTML += '<span id="typeStatTrak"> StatTrak™ - ' + types.StatTrak + '</span>';
+    typeArea.innerHTML += '<span id="typeKeys"> Keys - ' + types.Keys + '</span>';
     typeArea.innerHTML += '<span id="typeSkins"> Skins - ' + types.Skins + '</span>';
     typeArea.innerHTML += '<span id="typeKnife"> Knives - ' + types.Knife + '</span>';
     typeArea.innerHTML += '<span id="typeGloves"> Gloves - ' + types.Gloves + '</span>';
     typeArea.innerHTML += '<span id="typeSticker"> Sticker - ' + types.Sticker + '</span>';
     typeArea.innerHTML += '<span id="typeGraffiti"> Graffiti - ' + types.Graffiti + '</span>';
     typeArea.innerHTML += '<span id="typeContainer"> Container - ' + types.Container + '</span>';
-
+    // Event Listeners
     document.getElementById('typeAll').addEventListener('click', function () { print('All') }, false);
+    document.getElementById('typeStatTrak').addEventListener('click', function () { print('StatTrak') }, false);
+    document.getElementById('typeKeys').addEventListener('click', function () { print('Key') }, false);
+    document.getElementById('typeKnife').addEventListener('click', function () { print('Knife') }, false);
+    document.getElementById('typeGloves').addEventListener('click', function () { print('Gloves') }, false);
     document.getElementById('typeSticker').addEventListener('click', function () { print('Sticker') }, false);
     document.getElementById('typeGraffiti').addEventListener('click', function () { print('Graffiti') }, false);
     document.getElementById('typeContainer').addEventListener('click', function () { print('Container') }, false);
