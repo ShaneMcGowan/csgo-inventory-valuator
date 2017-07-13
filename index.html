@@ -73,7 +73,11 @@
   <section id="inventory">
     <section class="container center header ">
       <!-- BEGIN Profile Details -->
-      <section class="col-3 container padding-2-5">
+      <section id="profileAreaLoading" >
+        <span>Profile Loading...</span>
+        <div class="rotating"><span>■</span></div>
+      </section>
+      <section id="profileArea" class="col-3 container padding-2-5">
         <div class="col-12">
           <img id="profileImage" class="img-profile" src="" alt="profile image" />
         </div>
@@ -96,7 +100,7 @@
       </section>
       <!-- END Profile Details -->
       <!-- BEGIN Inventory Table -->
-      <section class="col-9 container-test padding-2-5">
+      <section id="inventoryArea" class="col-9 container-test padding-2-5">
         <section id="types" class="col-12">
         </section>
         <section id="inventory-table" class="col-12">
@@ -165,16 +169,18 @@
 
   window.onload = function () {
     // Hide inventory on initial load
-    document.getElementById('inventory').style.display = 'none';
+    changePage('home');
 
     /* On enter press for that sick UX */
     document.getElementById('btnGo').addEventListener('click', function () {
       getUser();
+      changePage('inventory');
     });
 
     document.getElementById('tbxId').addEventListener('keydown',function(event){
       if (event.which == 13 || event.keyCode == 13) {
         getUser();
+        changePage('inventory');
         return false;
       }
       return true;
@@ -648,15 +654,32 @@
   }
 
   function getUser(){
-    // Hide home and show inventory
-      document.getElementById('home').style.display = 'none';
-      document.getElementById('inventory').style.display = 'block';
-
       // Get profile
       api.profile = document.getElementById('tbxId').value;
       getSteamProfile()
         .then(getSteamInventory)
         .then(buildProfile);
+  }
+
+  function uiLoadingInventory(){
+    profileArea
+    inventoryArea
+  }
+
+  function uiLoadingProfile(){
+
+  }
+
+  function changePage(newPage){
+    let pages = ['home','inventory'];
+    pages.forEach(page => {
+      if(page !== newPage){
+        document.getElementById(page).className = 'hidden';
+      }
+      else{
+        document.getElementById(page).className = ' ';
+      }
+    })
   }
 
 </script>
