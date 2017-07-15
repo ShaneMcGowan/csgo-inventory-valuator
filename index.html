@@ -28,8 +28,12 @@
         </div>
       </div>
       <div class="col-12 center input m-top-5 fade">
+        <input id="tbxBitSkinsAPIKey" value="" type="text" spellcheck="false" class="textBox" placeholder="Enter your BitSkins API Key (optional)">
+        <input id="tbxBitSkinsOAuthKey" type="text" spellcheck="false" class="textBox border-left" placeholder="Enter your BitSkins OAuth Code (optional)">
+      </div>
+      <div class="col-12 center input m-top-5 fade">
         <input id="tbxId" value="http://steamcommunity.com/id/Szenmu/" type="text" spellcheck="false" class="textBox" placeholder="Enter your Steam URL, Custom Url or Steam64ID">
-        <button id="btnGo" class="button">Go!</button>
+        <button id="btnGo" class="button border-left">Go!</button>
       </div>
       <svg class="arrows" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
         <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path>
@@ -143,7 +147,11 @@
     },
     prices: {
       opskins: 'https://api.opskins.com/IPricing/GetAllLowestListPrices/v1/?appid=730',
-      bitskins: '',
+      bitskins: { 
+        base: 'https://bitskins.com/api/v1/get_price_data_for_items_on_sale/?',
+        apiKey: 'api_key=',
+        oauthKey: 'code='
+      },
       steam: ''
     },
     profile: 'http://steamcommunity.com/id/TOILETROLLMAN/' // James' Inventory
@@ -196,7 +204,7 @@
     let loadingBitSkinsPrices = document.getElementById('loadingBitSkinsPrices');
 
     getPricesOpSkins()
-      .then(getPricesBitSkins)
+      //.then(getPricesBitSkins) TODO: Move this back once the API is set up so no need for users to input their own - prices can then be loaded in once on initial load
       .then(getPricesSteam)
 
   };
@@ -251,9 +259,19 @@
       console.log('[TODO] Getting Bitskins prices....');
       loadingBitSkinsPrices.innerHTML = 'COMING SOON';
 
-      /*callApi(api.prices.opskins,function(){
-        resolve();
-      });*/
+      let url = api.prices.bitskins.base + api.prices.bitskins.apiKey + '&' + api.prices.bitskins.oauthKey;
+      console.log(url)
+
+      callApi(url,function(response){
+        console.log(response);
+        if(response.status === 'success'){
+          pricesBitSkins = response.data.items;
+          resolve();
+        }
+        else{
+          reject();
+        }
+      });
       resolve();
 
     });
@@ -276,7 +294,7 @@
     let promise = new Promise(function (resolve, reject) {
       console.log('Building profile....');
       updatePricesOpSkins();
-      // TODO: updatePricesBitSkins();
+      updatePricesBitSkins();
       // TODO: updatePricesSteam();
       printTypes();
       populateTable(inventoryUnfiltered)
@@ -605,7 +623,21 @@
   }
   // TODO:
   function updatePricesBitSkins() {
+    console.log(inventoryUnfiltered);
+    inventoryUnfiltered.forEach(item => {
+      let found = false;
+      for(let i = 0; i < pricesBitSkins.length; i++ ){
+          if(pricesBitSkins[i].market_hash_name === item.name ) {
+            item.priceBitskins = pricesBitSkins[i].lowest_price;
+            found = true;
+            break;
+          }
+      }
 
+      if(!found) {
+        item.priceBitskins = 0.00;
+      }
+    });
   }
   // TODO:
   function updatePricesSteam() {
@@ -655,8 +687,13 @@
 
   function getUser(){
       // Get profile
+      // TODO: API key and OAuth will be removed in future once server solution is implemented
+      api.prices.bitskins.apiKey = 'api_key=' + document.getElementById('tbxBitSkinsAPIKey').value;
+      api.prices.bitskins.oauthKey = 'code=' + document.getElementById('tbxBitSkinsOAuthKey').value;
+
       api.profile = document.getElementById('tbxId').value;
       getSteamProfile()
+        .then(getPricesBitSkins)
         .then(getSteamInventory)
         .then(buildProfile);
   }

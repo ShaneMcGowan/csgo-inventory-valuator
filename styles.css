@@ -65,8 +65,11 @@ html, body {
   height: 3rem; 
   background-color: transparent;
   color: white;
-  border-left: 2px solid white;
   font-family: 'Roboto', sans-serif;
+}
+
+.border-left{
+  border-left: 2px solid white;
 }
 
 button:hover {
