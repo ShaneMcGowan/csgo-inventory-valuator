@@ -266,9 +266,11 @@
         console.log(response);
         if(response.status === 'success'){
           pricesBitSkins = response.data.items;
+          loadingBitSkinsPrices.innerHTML = 'DONE';
           resolve();
         }
         else{
+          loadingBitSkinsPrices.innerHTML = 'FAILED';
           reject();
         }
       });
@@ -378,8 +380,8 @@
   function populateTable(inventory) {
     let tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
-    inventory.forEach(element => {
-      tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + element.amount + '</td><td>' + '♥' + '</td><td>' + '$' + element.price.toFixed(2) + '</td><td>' + '♥' + '</td></tr>';
+    inventory.forEach(item => {
+      tableBody.innerHTML += '<tr><td>' + item.name + '</td><td>' + item.amount + '</td><td>' + '♥' + '</td><td>' + '$' + item.price.toFixed(2) + '</td><td>' + '$' + item.priceBitskins + '</td></tr>';
     });
   }
 
@@ -663,8 +665,8 @@
   function tempPopTable(inventory) {
     let tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
-    inventory.forEach(element => {
-      tableBody.innerHTML += '<tr><td>' + element.name + '</td><td>' + '$' + element.price + '</td><td>' + element.amount + '</td></tr>';
+    inventory.forEach(item => {
+      tableBody.innerHTML += '<tr><td>' + item.name + '</td><td>' + '$' + item.price + '</td><td>' + item.amount + '</td></tr>';
     });
   }
 
