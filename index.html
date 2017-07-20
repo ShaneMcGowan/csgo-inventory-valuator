@@ -334,6 +334,8 @@
     inventoryUnfiltered = removeDuplicateNameEntries(inventoryUnfiltered);
     /* now remove all the null rows so we have no issues when making the table */
     inventoryUnfiltered = removeNullsFromArray(inventoryUnfiltered);
+    /* Now add the property for prices to make things easier for later */
+    inventoryUnfiltered = prepareItemPrice(inventoryUnfiltered);
     /* once all items are in the right format, parse them into a list of types */
     getTypes(inventoryUnfiltered);
   }
@@ -381,7 +383,45 @@
     let tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
     inventory.forEach(item => {
-      tableBody.innerHTML += '<tr><td>' + item.name + '</td><td>' + item.amount + '</td><td>' + '♥' + '</td><td>' + '$' + item.price.toFixed(2) + '</td><td>' + '$' + item.priceBitskins + '</td></tr>';
+      let tableRow = '';
+      tableRow
+      += '<tr>'
+      + '<td>' + item.name + '</td>'
+      + '<td>' + item.amount + '</td>';
+
+      // Steam
+      tableRow += '<td>';
+
+      if(item.price.steam === 'N/A') {
+        tableRow += 'N/A';
+      }
+      else {
+        tableRow += ('$' + item.price.steam.toFixed(2));
+      }
+
+      tableRow += '</td>';
+
+      // OpSkins
+      tableRow += '<td>';
+      if(item.price.opskins === 'N/A') {
+        tableRow += 'N/A';
+      }
+      else {
+        tableRow += ('$' + item.price.opskins.toFixed(2));
+      }
+      tableRow += '</td>';
+
+      // BitSkins
+      tableRow += '<td>';
+      if(item.price.bitskins === 'N/A' || item.price.bitskins == '0.00') {
+        tableRow += 'N/A';
+      }
+      else {
+        tableRow += ('$' + item.price.bitskins);
+      }
+      tableRow += '</td></tr>';
+
+      tableBody.innerHTML += tableRow;
     });
   }
 
@@ -412,6 +452,16 @@
       if (array[i] == null) {
         array.splice(i, 1)
         i--;
+      }
+    }
+    return array;
+  }
+  function prepareItemPrice(array){
+    for(let i = 0; i < array.length; i++){
+      array[i].price = {
+        bitskins : 'N/A',
+        opskins : 'N/A',
+        steam : 'N/A',
       }
     }
     return array;
@@ -602,23 +652,14 @@
     }
   }
 
-  // reset screen
-  function reset() {
-    inventoryUnfiltered = [];
-    types = [];
-    document.getElementById('total').innerHTML = '';
-    document.getElementById('types').innerHTML = '';
-    document.getElementById('tableBody').innerHTML = '';
-  }
   function updatePricesOpSkins() {
     console.log(inventoryUnfiltered);
     inventoryUnfiltered.forEach(item => {
       // TODO: Graffiti messes this up
       try {
-        item.price = (pricesOpSkins[item.name].price / 100);
+        item.price.opskins = (pricesOpSkins[item.name].price / 100);
       }
       catch (e) {
-        item.price = 0.00;
         // shout out to cathal
       }
     });
@@ -630,14 +671,14 @@
       let found = false;
       for(let i = 0; i < pricesBitSkins.length; i++ ){
           if(pricesBitSkins[i].market_hash_name === item.name ) {
-            item.priceBitskins = pricesBitSkins[i].lowest_price;
+            item.price.bitskins = pricesBitSkins[i].lowest_price;
             found = true;
             break;
           }
       }
 
       if(!found) {
-        item.priceBitskins = 0.00;
+        // maybe handle something here
       }
     });
   }
@@ -661,13 +702,6 @@
         }
       });
     }
-  }
-  function tempPopTable(inventory) {
-    let tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = '';
-    inventory.forEach(item => {
-      tableBody.innerHTML += '<tr><td>' + item.name + '</td><td>' + '$' + item.price + '</td><td>' + item.amount + '</td></tr>';
-    });
   }
 
   function parseProfileXML(xmlString) {
