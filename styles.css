@@ -95,6 +95,28 @@ button:hover {
   border: 2px solid white;
 }
 
+.input.input-error {
+  border-color: red;
+}
+
+.input-error-message {
+  color: red;
+}
+
+.input.input-error .border-left {
+  border-color: red;
+}
+
+.input.input-loading {
+  height: 48px;
+  border: none;
+}
+
+.input.input-loading img {
+  background: white;
+  height: 36px;
+}
+
 .arrows {
   width: 25px;
   height: 25px;
@@ -291,4 +313,38 @@ a:hover {
   -moz-animation: fade-in-and-out 2s infinite;
   -o-animation: fade-in-and-out 2s infinite;
   animation: fade-in-and-out 2s infinite;
+}
+
+.spin {
+  -webkit-animation: animation-spin 2s infinite linear;
+  -moz-animation: animation-spin 2s infinite linear;
+  -o-animation: animation-spin 2s infinite linear;
+  animation: animation-spin 2s infinite linear;
+}
+
+@-moz-keyframes animation-spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes animation-spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes animation-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

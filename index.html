@@ -9,6 +9,7 @@
   <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <script src="./scroll.js"></script>
+  <script src="./xml-helper.js"></script>
   <link rel="stylesheet" href="./styles.css">
 </head>
 
@@ -25,17 +26,29 @@
         </span>
       </div>
     </div>
-    <div class="col-12 center input m-top-5 fade">
+
+    <!-- Bit Skins API area -->
+    <!-- TODO: Probably should remove this -->
+    <div class="col-12 center input m-top-5 fade hidden">
       <input id="tbxBitSkinsAPIKey" value="" type="text" spellcheck="false" class="text-box"
         placeholder="BitSkins API Key (optional)">
       <input id="tbxBitSkinsOAuthKey" type="text" spellcheck="false" class="text-box border-left"
         placeholder="BitSkins OAuth Code (optional)">
     </div>
+
+    <!-- Input -->
     <div class="col-12 center input m-top-5 fade">
       <input id="tbxId" value="http://steamcommunity.com/id/YOUR_STEAM_NAME_HERE" type="text" spellcheck="false"
         class="text-box" placeholder="Enter your Steam URL, Custom Url or Steam64ID">
       <button id="btnGo" class="button border-left">Go!</button>
     </div>
+    <!-- Input Error -->
+    <div id="tbxError" class="col-12 center input-error-message m-top-5 hidden"></div>
+    <!-- Input Loading -->
+    <div id="inputLoading" class="col-12 center input input-loading m-top-5 fade spin">
+      <img src="./images/icons/spinner.svg" />
+    </div>
+    
     <svg class="arrows" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
       <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path>
     </svg>

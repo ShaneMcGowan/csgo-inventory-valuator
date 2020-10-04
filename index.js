@@ -16,31 +16,18 @@ let api = {
   profile: 'http://steamcommunity.com/id/TOILETROLLMAN/' // James' Inventory
 };
 
+let submitting = false;
 
 window.onload = function () {
 
   /* On enter press for that sick UX */
   document.getElementById('btnGo').addEventListener('click', () => {
-    const id = document.getElementById('tbxId').value;
-    api.profile = id;
-    getSteamProfile().then(response => {
-      console.log(response);
-
-      const found = false;
-      if (found === true) {
-        const id = document.getElementById('tbxId').value;
-        window.location = `/inventory.html?id=${id}`;
-      } else {
-        alert('not found');
-      }
-    });
+    onFormSubmit();
   });
 
   document.getElementById('tbxId').addEventListener('keydown', (event) => {
     if (event.which == 13 || event.keyCode == 13) {
-      getUser();
-      const id = document.getElementById('tbxId').value;
-      window.location = `/inventory.html?id=${id}`;
+      onFormSubmit();
       return false;
     }
     return true;
@@ -52,7 +39,7 @@ window.onload = function () {
 
 };
 
-let getSteamProfile = function () {
+function getSteamProfile() {
   let promise = new Promise(function (resolve, reject) {
     console.log('Getting steam profile....');
 
@@ -73,6 +60,62 @@ function callApiXML(url, callback) {
     //TODO: Probably dont need this .then
     callback(response);
   });
+}
+
+function navigateToInventory(steam64ID) {
+  window.location.href = `/inventory.html?id=${steam64ID}`;
+}
+
+function onFormSubmit() {
+  if (submitting === false) {
+    // Set loading state
+    submitting = true;
+
+    // Remove previous error messages
+    const outputError = document.getElementById('tbxError');
+    const textboxInput = document.getElementById('tbxId').parentNode;
+    outputError.innerHTML = '';
+    outputError.classList.add('hidden');
+    textboxInput.classList.remove('input-error');
+
+    // TODO: Loading state
+    const id = document.getElementById('tbxId').value;
+    api.profile = id;
+    getSteamProfile().then(response => {
+      const steam64ID = getTagValueFromXMLString(response, 'steamID64');
+
+      if (steam64ID !== null) {
+        navigateToInventory(steam64ID);
+        submitting = false;
+      } else {
+        // Add Error 
+        outputError.innerHTML = "Profile is either private or doesn't exist";
+        outputError.classList.remove('hidden');
+        textboxInput.classList.add('input-error');
+
+        // Remove loading state
+        submitting = false;
+      }
+    });
+  }
+}
+
+function addErrors() {
+
+}
+
+function removeErrors() {
+
+}
+
+function addLoading() {
+  const inputLoading = document.getElementById('inputLoading');
+  inputLoading.classList.remove('hidden');
+}
+
+function removeLoading() {
+  const inputLoading = document.getElementById('inputLoading');
+  inputLoading.classList.add('hidden');
 }
 
 
