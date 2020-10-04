@@ -8,75 +8,76 @@
   <meta name="author" content="Shane McGowan">
   <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-  <script src="scroll.js"></script>
-  <link rel="stylesheet" href="styles.css">
+  <script src="./scroll.js"></script>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
-  <!-- BEGIN Home -->
-  <section id="home">
-    <section id="header" class="container-v padding header ">
-      <div class="col-12 fade">
-        <div class="heading">
-          <span class="title">
-            CSGO Inventory Valuator
-          </span>
-          <span class="signature">
-            by <a href="https://shanemcgowan.me">Shane McGowan</a>
-          </span>
-        </div>
-      </div>
-      <div class="col-12 center input m-top-5 fade">
-        <input id="tbxBitSkinsAPIKey" value="" type="text" spellcheck="false" class="text-box"
-          placeholder="BitSkins API Key (optional)">
-        <input id="tbxBitSkinsOAuthKey" type="text" spellcheck="false" class="text-box border-left"
-          placeholder="BitSkins OAuth Code (optional)">
-      </div>
-      <div class="col-12 center input m-top-5 fade">
-        <input id="tbxId" value="http://steamcommunity.com/id/YOUR_STEAM_NAME_HERE" type="text" spellcheck="false"
-          class="text-box" placeholder="Enter your Steam URL, Custom Url or Steam64ID">
-        <button id="btnGo" class="button border-left">Go!</button>
-      </div>
-      <svg class="arrows" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path>
-      </svg>
-    </section>
-    <section id="about" class="container padding divider">
-      <div class="col-12">
-        <span class="title center">
-          CS:GO Inventory Valuator
+  <!-- SEARCH -->
+  <section id="search" class="container-v padding header ">
+    <div class="col-12 fade">
+      <div class="heading">
+        <span class="title">
+          CSGO Inventory Valuator
         </span>
-        <span class="subtitle">
-          A simple, easy to use Inventory valuator for CS:GO items, giving up to date prices from the most popular
-          online market places.
+        <span class="signature">
+          by <a href="https://shanemcgowan.me">Shane McGowan</a>
         </span>
       </div>
-      <div class="col-4">
-        <a href="https://steamcommunity.com/market/search?appid=730" target="_blank">
-          <img id="logo-steam" class="img-icon center" src="/images/logos/logo-steam.png">
-        </a>
-        <span class="subtitle">Steam</span>
-      </div>
-      <div class="col-4">
-        <a href="https://opskins.com" target="_blank">
-          <img id="logo-opskins" class="img-icon center" src="/images/logos/logo-opskins.jpg">
-        </a>
-        <span class="subtitle">OpSkins</span>
-      </div>
-      <div class="col-4">
-        <a href="https://bitskins.com" target="_blank">
-          <img id="logo-bitskins" class="img-icon center" src="/images/logos/logo-bitskins.png">
-        </a>
-        <span class="subtitle">BitSkins</span>
-      </div>
-    </section>
-    <section class="footer padding divider title">
-      <a href="https://www.github.com/shanemcgowan" target="_blank">github</a>
-    </section>
+    </div>
+    <div class="col-12 center input m-top-5 fade">
+      <input id="tbxBitSkinsAPIKey" value="" type="text" spellcheck="false" class="text-box"
+        placeholder="BitSkins API Key (optional)">
+      <input id="tbxBitSkinsOAuthKey" type="text" spellcheck="false" class="text-box border-left"
+        placeholder="BitSkins OAuth Code (optional)">
+    </div>
+    <div class="col-12 center input m-top-5 fade">
+      <input id="tbxId" value="http://steamcommunity.com/id/YOUR_STEAM_NAME_HERE" type="text" spellcheck="false"
+        class="text-box" placeholder="Enter your Steam URL, Custom Url or Steam64ID">
+      <button id="btnGo" class="button border-left">Go!</button>
+    </div>
+    <svg class="arrows" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z"></path>
+    </svg>
   </section>
-  <!-- END Home -->
+
+  <!-- ABOUT -->
+  <section id="about" class="container padding divider">
+    <div class="col-12">
+      <span class="title center">
+        CS:GO Inventory Valuator
+      </span>
+      <span class="subtitle">
+        A simple, easy to use Inventory valuator for CS:GO items, giving up to date prices from the most popular
+        online market places.
+      </span>
+    </div>
+    <div class="col-4">
+      <a href="https://steamcommunity.com/market/search?appid=730" target="_blank">
+        <img id="logo-steam" class="img-icon center" src="./images/logos/logo-steam.png">
+      </a>
+      <span class="subtitle">Steam</span>
+    </div>
+    <div class="col-4">
+      <a href="https://opskins.com" target="_blank">
+        <img id="logo-opskins" class="img-icon center" src="./images/logos/logo-opskins.jpg">
+      </a>
+      <span class="subtitle">OpSkins</span>
+    </div>
+    <div class="col-4">
+      <a href="https://bitskins.com" target="_blank">
+        <img id="logo-bitskins" class="img-icon center" src="./images/logos/logo-bitskins.png">
+      </a>
+      <span class="subtitle">BitSkins</span>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <section class="footer padding divider title">
+    <a href="https://www.github.com/shanemcgowan" target="_blank">github</a>
+  </section>
 </body>
 
-<script src="index.js"></script>
+<script src="./index.js"></script>
 
 </html>
