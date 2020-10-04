@@ -1,35 +1,43 @@
+@import "/styles/paddings.css";
+@import "/styles/yacf.css";
 html, body {
   color: #000000;
   font-family: 'Roboto', sans-serif;
+  height: 100%;
+  width: 100%;
 }
 
 .header {
-  background-image : linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),url(http://i.imgur.com/cPqTQXQ.jpg);
+  background-image: linear-gradient(rgba(0, 0, 0, .65), rgba(0, 0, 0, .65)), url(/images/background.jpg);
   background-position: 50% 50%;
   background-repeat: no-repeat;
   background-size: cover;
   color: #ffffff;
 }
 
-.heading{
+.heading {
   text-align: center;
   text-transform: uppercase;
 }
 
-.title{
+.title {
   font-size: 1.2rem;
   letter-spacing: 3.5px;
   font-weight: 1000;
 }
 
-.signature{
+.signature {
   margin-top: 5px;
   display: block;
   font-size: 10px;
   font-weight: 500;
 }
 
-.subtitle{
+.signature a {
+  color: white;
+}
+
+.subtitle {
   text-align: center;
   margin-top: 10px;
   display: block;
@@ -38,7 +46,7 @@ html, body {
   color: #868e96;
 }
 
-.footer{
+.footer {
   min-height: 10vh;
   width: 100%;
   display: flex;
@@ -50,7 +58,8 @@ html, body {
 }
 
 /* Inputs */
-.textBox{
+
+.text-box {
   width: 90%;
   height: 3rem;
   padding-left: 2.5%;
@@ -59,165 +68,227 @@ html, body {
   color: white;
   font-family: 'Roboto', sans-serif;
   text-decoration: none;
+  overflow: hidden;
 }
-.button{
+
+.button {
   width: 10%;
-  height: 3rem; 
+  height: 3rem;
   background-color: transparent;
   color: white;
   font-family: 'Roboto', sans-serif;
 }
 
-.border-left{
+.border-left {
   border-left: 2px solid white;
 }
 
 button:hover {
   cursor: pointer;
   background-color: white;
-  color: rgba(0,0,0,1);
+  color: rgba(0, 0, 0, 1);
 }
-.input{
+
+.input {
   text-align: center;
   border-radius: 5px;
-  border: 2px solid white;  
+  border: 2px solid white;
 }
 
 .arrows {
-	width: 25px;
-	height: 25px;
-	position: absolute;
-	bottom: 20px;
-  cursor:pointer;
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  bottom: 20px;
+  cursor: pointer;
 }
 
 .arrows path {
-	fill: #ffffff;
-	stroke-width: 1px;	
-	animation: arrow 2s infinite;
-	-webkit-animation: arrow 2s infinite;
-
+  fill: #ffffff;
+  stroke-width: 1px;
+  animation: arrow 2s infinite;
+  -webkit-animation: arrow 2s infinite;
 }
 
-@keyframes arrow
-{
-0% {opacity:0}
-40% {opacity:1}
-80% {opacity:0}
-100% {opacity:0}
+@keyframes arrow {
+  0% {
+    opacity: 0
+  }
+  40% {
+    opacity: 1
+  }
+  80% {
+    opacity: 0
+  }
+  100% {
+    opacity: 0
+  }
 }
 
-@-webkit-keyframes arrow /*Safari and Chrome*/
-{
-0% {opacity:0}
-40% {opacity:1}
-80% {opacity:0}
-100% {opacity:0}
+@-webkit-keyframes arrow
+/*Safari and Chrome*/
+
+  {
+  0% {
+    opacity: 0
+  }
+  40% {
+    opacity: 1
+  }
+  80% {
+    opacity: 0
+  }
+  100% {
+    opacity: 0
+  }
 }
 
 .arrows path.a1 {
-	animation-delay:-1s;
-	-webkit-animation-delay:-1s; /* Safari 和 Chrome */
+  animation-delay: -1s;
+  -webkit-animation-delay: -1s;
+  /* Safari 和 Chrome */
 }
 
 .arrows path.a2 {
-	animation-delay:-0.5s;
-	-webkit-animation-delay:-0.5s; /* Safari 和 Chrome */
+  animation-delay: -0.5s;
+  -webkit-animation-delay: -0.5s;
+  /* Safari 和 Chrome */
 }
 
-.arrows path.a3 {	
-	animation-delay:0s;
-	-webkit-animation-delay:0s; /* Safari 和 Chrome */
+.arrows path.a3 {
+  animation-delay: 0s;
+  -webkit-animation-delay: 0s;
+  /* Safari 和 Chrome */
 }
-
 
 a {
   text-decoration: none;
   color: #000000;
 }
 
-.fade{
-  -webkit-animation: fadein 4s; /* Safari, Chrome and Opera > 12.1 */
-       -moz-animation: fadein 4s; /* Firefox < 16 */
-        -ms-animation: fadein 4s; /* Internet Explorer */
-         -o-animation: fadein 4s; /* Opera < 12.1 */
+.fade {
+  -webkit-animation: fadein 4s;
+  /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 4s;
+  /* Firefox < 16 */
+  -ms-animation: fadein 4s;
+  /* Internet Explorer */
+  -o-animation: fadein 4s;
+  /* Opera < 12.1 */
   animation: fadein 4s;
 }
 
 @keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Firefox < 16 */
+
 @-moz-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Safari, Chrome and Opera > 12.1 */
+
 @-webkit-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Internet Explorer */
+
 @-ms-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Opera < 12.1 */
+
 @-o-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-
-
-@keyframes fadeInAndOut {
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
-}
-@-o-keyframes fadeInAndOut{
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
-}
-@-moz-keyframes fadeInAndOut{
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
-}
-@-webkit-keyframes fadeInAndOut{
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
-}
-.fadeInAndOut {
-  -webkit-animation: fadeInAndOut 2s infinite;
-  -moz-animation: fadeInAndOut 2s infinite;
-  -o-animation: fadeInAndOut 2s infinite;
-  animation: fadeInAndOut 2s infinite; 
+@keyframes fade-in-and-out {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-a:hover{
-  -webkit-animation: fadeInAndOut 2s infinite;
-  -moz-animation: fadeInAndOut 2s infinite;
-  -o-animation: fadeInAndOut 2s infinite;
-  animation: fadeInAndOut 2s infinite;
+@-o-keyframes fade-in-and-out {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-#types {
-  list-style: none;
-  display: inline;
-  background-color: black;
+@-moz-keyframes fade-in-and-out {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-#types span {
-  padding: 5px;
-  border: 1px solid white;
-  color: white;
-  cursor: pointer;
+@-webkit-keyframes fade-in-and-out {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-in-and-out {
+  -webkit-animation: fade-in-and-out 2s infinite;
+  -moz-animation: fade-in-and-out 2s infinite;
+  -o-animation: fade-in-and-out 2s infinite;
+  animation: fade-in-and-out 2s infinite;
+}
+
+a:hover {
+  -webkit-animation: fade-in-and-out 2s infinite;
+  -moz-animation: fade-in-and-out 2s infinite;
+  -o-animation: fade-in-and-out 2s infinite;
+  animation: fade-in-and-out 2s infinite;
 }

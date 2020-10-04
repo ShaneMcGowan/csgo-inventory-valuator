@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSGO Inventory</title>
+  <script src="inventory.js"></script>
+</head>
+<body>
+  <h1>Inventory</h1>
+    <!-- BEGIN Inventory -->
+    <section id="inventory">
+      <section class="container center header">
+        <!-- BEGIN Profile Details -->
+        <section id="profileAreaLoading">
+          <span>Profile Loading...</span>
+          <div class="rotating"><span>■</span></div>
+        </section>
+        <section id="profileArea">
+          <img id="profileImage" class="img-profile" src="" alt="profile image" />
+          <p id="profileSteamID" class="title"></p>
+          <p id="profileSteamID64">SteamID64 : </p>
+          <p id="profileSteamCustomURL">Custom URL : </p>
+          <p id="profileVacBanned">Vac Banned : </p>
+          <p id="profileTradeBanned">Trade Banned : </p>
+          <p id="profileLimited">Limited : </p>
+          <p id="profileLastLogin"></p>
+          <p>Steam Profile
+          <p id="loadingSteamProfile"></p>
+          </p>
+          <p>Steam Inventory
+          <p id="loadingSteamInventory"></p>
+          </p>
+          <p>Steam Prices
+          <p id="loadingSteamPrices"></p>
+          </p>
+          <p>OpSkins Prices
+          <p id="loadingOpSkinsPrices"></p>
+          </p>
+          <p>BitSkins Prices
+          <p id="loadingBitSkinsPrices"></p>
+          </p>
+        </section>
+        <!-- END Profile Details -->
+        <!-- BEGIN Inventory Table -->
+        <section id="inventoryArea">
+          <section id="types">
+          </section>
+          <section id="inventory-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Amount</th>
+                  <th id="thSteam">Steam</th>
+                  <th id="thOpSkins">OpSkins</th>
+                  <th id="thBitSkins">BitSkins</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+              </tbody>
+            </table>
+          </section>
+        </section>
+        <!-- END Inventory Table -->
+        <div style="display:none;">
+  
+          <section class="priceStatus">
+  
+          </section>
+        </div>
+      </section>
+    </section>
+    <!-- END INVENTORY -->
+</body>
+</html>

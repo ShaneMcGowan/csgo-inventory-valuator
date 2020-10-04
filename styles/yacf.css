@@ -1,17 +1,19 @@
+/* 
+  An attempt at a css framework 
+*/
+
 * {
   margin: 0;
   padding: 0;
   border: 0;
-	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box;    /* Firefox, other Gecko */  	box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;
+  /* Firefox, other Gecko */
+  box-sizing: border-box;
 }
 
-html, body {
-  height: 100%;
-  width: 100%;
-
-}
-.container-v{
+.container-v {
   min-height: 100vh;
   width: 100%;
   display: flex;
@@ -20,7 +22,8 @@ html, body {
   flex-direction: column;
   flex-wrap: wrap;
 }
-.container{
+
+.container {
   min-height: 100vh;
   width: 100%;
   display: flex;
@@ -30,8 +33,7 @@ html, body {
   flex-wrap: wrap;
 }
 
-.container-flex{
-  
+.container-flex {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -41,7 +43,7 @@ html, body {
 }
 
 .container-test {
- min-height: 100vh;
+  min-height: 100vh;
   width: 100%;
   display: flex;
   align-items: center;
@@ -53,45 +55,55 @@ html, body {
   border-top: 1px solid #e9ecef;
 }
 
-
-.col-1{
+.col-1 {
   width: 8.33333333%;
 }
-.col-2{
+
+.col-2 {
   width: 16.6666666%;
 }
-.col-3{
+
+.col-3 {
   width: 25%;
 }
-.col-4{
+
+.col-4 {
   width: 33.3333333%;
 }
-.col-5{
+
+.col-5 {
   width: 41.6666666666%;
 }
-.col-6{
+
+.col-6 {
   width: 50%;
 }
-.col-7{
+
+.col-7 {
   width: 58.3333333333%;
 }
-.col-8{
+
+.col-8 {
   width: 66.6666666666%;
 }
-.col-9{
+
+.col-9 {
   width: 75%;
 }
-.col-10{
+
+.col-10 {
   width: 83.3333333333%;
 }
-.col-11{
+
+.col-11 {
   width: 91.6666666666%;
 }
-.col-12{
+
+.col-12 {
   width: 100%;
 }
 
-.center{
+.center {
   height: 100%;
   width: 100%;
   margin: 0 auto;
@@ -102,42 +114,31 @@ html, body {
   text-align: center;
 }
 
-
-
 .m-top-5 {
   margin-top: 5%;
 }
 
-.padding {
-  padding: 5%;
-}
-
-.padding-2-5 {
-  padding: 2.5%;
-}
-
-
 .img-icon {
   height: 33.333333%;
-	width: 33.333333%;
+  width: 33.333333%;
 }
 
 .img-profile {
   border-radius: 25px;
   width: 25%;
   height: 25%;
-
 }
 
-.text-left {
-  
-}
+.text-left {}
 
 .table tr td:first-child {
   text-align: left;
 }
 
-@-webkit-keyframes rotating /* Safari and Chrome */ {
+@-webkit-keyframes rotating
+/* Safari and Chrome */
+
+  {
   from {
     -webkit-transform: rotate(0deg);
     -o-transform: rotate(0deg);
@@ -149,6 +150,7 @@ html, body {
     transform: rotate(360deg);
   }
 }
+
 @keyframes rotating {
   from {
     -ms-transform: rotate(0deg);
@@ -165,6 +167,7 @@ html, body {
     transform: rotate(360deg);
   }
 }
+
 .rotating {
   -webkit-animation: rotating 1s linear infinite;
   -moz-animation: rotating 1s linear infinite;
@@ -173,6 +176,6 @@ html, body {
   animation: rotating 1s linear infinite;
 }
 
-.hidden { 
+.hidden {
   display: none;
 }
