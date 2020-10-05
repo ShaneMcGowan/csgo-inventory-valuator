@@ -1,5 +1,5 @@
-@import "/styles/paddings.css";
-@import "/styles/yacf.css";
+@import "./styles/paddings.css";
+@import "./styles/yacf.css";
 html, body {
   color: #000000;
   font-family: 'Roboto', sans-serif;
