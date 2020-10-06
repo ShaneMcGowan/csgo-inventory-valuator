@@ -69,7 +69,7 @@ function navigateToInventory(steam64ID) {
 function onFormSubmit() {
   if (submitting === false) {
     // Set loading state
-    submitting = true;
+    addLoading();
 
     // Remove previous error messages
     const outputError = document.getElementById('tbxError');
@@ -94,7 +94,7 @@ function onFormSubmit() {
         textboxInput.classList.add('input-error');
 
         // Remove loading state
-        submitting = false;
+        removeLoading();
       }
     });
   }
@@ -109,13 +109,24 @@ function removeErrors() {
 }
 
 function addLoading() {
+  submitting = true;
+
   const inputLoading = document.getElementById('inputLoading');
+  const inputText = document.getElementById('tbxId').parentNode;
+
   inputLoading.classList.remove('hidden');
+  inputText.classList.add('hidden');
 }
 
 function removeLoading() {
+  submitting = false;
+
   const inputLoading = document.getElementById('inputLoading');
+  const inputText = document.getElementById('tbxId').parentNode;
+
   inputLoading.classList.add('hidden');
+  inputText.classList.remove('hidden');
+
 }
 
 
