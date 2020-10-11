@@ -21,10 +21,34 @@ window.onload = function () {
   let loadingSteamPrices = document.getElementById('loadingSteamPrices');
   let loadingBitSkinsPrices = document.getElementById('loadingBitSkinsPrices');
 
+  const id = getParameterByName('id');
+  const bitskins_key = getParameterByName('bitskins_key');
+  const bitskins_code = getParameterByName('bitskins_code');
+  console.log('id: ' + id);
+  console.log('bitskins_key: ' + bitskins_key);
+  console.log('bitskins_code: ' + bitskins_code);
+
+  /**
+   * Get profile
+   * Get inventory
+   * async get all price site values
+   */
+
   // getPricesOpSkins()
   //   //.then(getPricesBitSkins) TODO: Move this back once the API is set up so no need for users to input their own - prices can then be loaded in once on initial load
   //   .then(getPricesSteam)
 
+}
+
+// From here https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+function getParameterByName(name, url) {
+  if (!url) url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
 let getSteamInventory = function () {
@@ -221,6 +245,7 @@ function removeDuplicateNameEntries(array) {
   }
   return array;
 }
+
 function removeNullsFromArray(array) {
   for (let i = 0; i < array.length; i++) {
     if (array[i] == null) {
@@ -230,6 +255,7 @@ function removeNullsFromArray(array) {
   }
   return array;
 }
+
 function prepareItemPrice(array) {
   for (let i = 0; i < array.length; i++) {
     array[i].price = {

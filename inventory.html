@@ -1,21 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSGO Inventory</title>
   <script src="inventory.js"></script>
+  <style>
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Inventory</h1>
-    <!-- BEGIN Inventory -->
+  <!-- #region LOADING -->
+  <section id="stateLoading">
+    <span>Profile Loading...</span>
+    <div class="rotating"><span>■</span></div>
+  </section>
+  <!-- #endregion -->
+
+  <!-- #region ERROR -->
+  <section id="stateError" class="hidden">
+    <span>Errored</span>
+  </section>
+  <!-- #endregion -->
+
+  <!-- #region Inventory -->
+  <section id="stateSuccess" class="hidden">
     <section id="inventory">
       <section class="container center header">
         <!-- BEGIN Profile Details -->
-        <section id="profileAreaLoading">
-          <span>Profile Loading...</span>
-          <div class="rotating"><span>■</span></div>
-        </section>
+
         <section id="profileArea">
           <img id="profileImage" class="img-profile" src="" alt="profile image" />
           <p id="profileSteamID" class="title"></p>
@@ -64,13 +81,16 @@
         </section>
         <!-- END Inventory Table -->
         <div style="display:none;">
-  
+
           <section class="priceStatus">
-  
+
           </section>
         </div>
       </section>
     </section>
-    <!-- END INVENTORY -->
+  </section>
+
+  <!-- #endregion INVENTORY -->
 </body>
+
 </html>
